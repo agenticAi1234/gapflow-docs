@@ -1,0 +1,90 @@
+---
+title: Platform & administration
+description: Organizations, plans, permissions, templates, logs, and collaboration in Gapflow
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+{/* MANUAL-CONTENT-START:intro */}
+
+Gapflow is built around **organizations**: your workflows, workspaces, folders, usage metrics, and a large part of product settings are **scoped to the active organization**. When you switch organizations, you are effectively switching **context**—which credentials apply, which members you collaborate with, and which resource limits govern what you can create or run.
+
+This **Platform & administration** section is for everyone who needs to understand **how the product is governed**, not only how to drag blocks on a canvas. It connects the dots between:
+
+- **Who** can do what (roles, invitations, granular permissions)
+- **How much** the organization can consume (Basic, Enterprise, Custom plans)
+- **How** workflows are saved, versioned, imported, and exported
+- **How** templates enter the public library (including super admin review)
+- **Where** execution history lives versus **definition** history (change logs)
+- **How** to connect tools and AI providers (Settings, environment variables)
+- **How** peers share workspaces and workflows inside the same tenant
+
+If you are onboarding a new team, read [Organization model](./organization) and [Roles & permissions](./roles-permissions) first so you are not surprised when a new hire “has an account but cannot run anything” until permissions are assigned.
+
+{/* MANUAL-CONTENT-END */}
+
+<Callout type="info">
+  Product UI labels may say **Gapflow** or your deployment name; the concepts below apply to the organization-centric workspace experience regardless of branding.
+</Callout>
+
+## How this section relates to the rest of the docs
+
+The sidebar still groups **Blocks**, **Tools**, **Connections**, and **Execution** under **Create** and **Execution**. Those chapters explain **authoring** workflows. **Platform & administration** explains **who may author**, **in which org**, **under which limits**, and **how operational data (logs, reports, templates)** is surfaced.
+
+You do not need to read everything here before your first workflow—but returning here after you understand blocks and tools will clarify **why** some buttons are disabled, **why** imports fail policy checks, or **why** templates stay in “pending review.”
+
+## Recommended reading order
+
+<Steps>
+  <Step>
+    Start with <a href="./organization">Organization model</a> if you are new to org-scoped workspaces
+    and invitations.
+  </Step>
+  <Step>
+    Read <a href="./roles-permissions">Roles &amp; permissions</a> before rolling out access broadly—especially
+    if you use custom permission sets.
+  </Step>
+  <Step>
+    Review <a href="./resources-plans">Resources &amp; plans</a> when you hit “limit reached” errors or plan
+    upgrade discussions.
+  </Step>
+  <Step>
+    Use <a href="./workflow-editor">Workflow editor</a> when migrating from purely autosave mental models to
+    explicit save + versions.
+  </Step>
+  <Step>
+    Use <a href="./templates">Templates</a> and <a href="./super-admin">Super admin</a> if you publish or
+    approve shared starters.
+  </Step>
+  <Step>
+    Deep-link to <a href="./logs-and-reports">Logs &amp; reports</a> and <a href="./settings">Settings</a> for
+    operators, support, and compliance stakeholders.
+  </Step>
+</Steps>
+
+## Topic index
+
+| Topic | Who it helps | Description |
+| --- | --- | --- |
+| [Organization model](./organization) | All users | Hierarchy, switching orgs, default workspace, invitations |
+| [Roles & permissions](./roles-permissions) | Admins, security | Org roles, permission sets, new-member access |
+| [Resources & plans](./resources-plans) | Admins, finance | Basic, Custom, Enterprise limits |
+| [Super admin](./super-admin) | Operators | Cross-tenant admin, template approvals |
+| [Workflow editor](./workflow-editor) | Builders | Save, versions, import/export, folders |
+| [Templates](./templates) | Builders, reviewers | Publish, browse, “mine” statuses |
+| [Logs & reports](./logs-and-reports) | Support, compliance | Execution vs change logs, reports, downloads |
+| [Settings](./settings) | Admins, DevOps | Tool integration, AI env config, retention |
+| [Collaboration](./collaboration) | Teams | Sharing inside the organization |
+
+## Blocks, tools, and execution (quick pointer)
+
+- **Blocks** and **tools** remain documented under **Create** in the sidebar.
+- **Connections** explain how data flows between blocks at runtime.
+- **Execution** and **variables** document engine behavior that applies **within** whatever org you have selected.
+
+If you are migrating from an older **autosave-only** workflow, treat [Workflow editor](./workflow-editor) as required reading: saves are now an intentional checkpoint, and version history is a first-class feature.
+
+## Support and customization
+
+Deployments may **rename** menu items (for example “Tool integration” vs “Credentials”) or **hide** super admin routes entirely. When in doubt, match the **concept** in this docs section to the closest label in your UI—or ask your platform operator which capabilities are enabled for your tenant.

@@ -1,0 +1,74 @@
+---
+title: Mistral Parser
+description: Extract structured text from PDFs using Mistral OCR via URL or upload
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+The **Mistral Parser** block (`mistral_parse`) calls **Mistral**’s document/OCR capabilities to turn **PDFs** into
+**Markdown**, **plain text**, or **raw JSON** representations suitable for agents, RAG pipelines or archival search.
+
+Depending on deployment (`USE_S3`, production mode), the block may offer:
+
+- **PDF Document URL** — public HTTPS link to a `.pdf` file  
+- **Upload PDF Document** — direct upload path (size limits apply, e.g. ~50 MB)  
+
+When upload is **disabled**, only **URL** mode appears—cloud storage “share links” that are not true direct
+downloads are **not** supported; host the file on a server that returns `Content-Disposition`/`application/pdf`
+bytes.
+
+## Output format dropdown
+
+| Option | Use when |
+| --- | --- |
+| **Markdown (Formatted)** | Feeding **Agent** blocks or human review |
+| **Plain Text** | Simple keyword workflows |
+| **JSON (Raw)** | Custom parsing / downstream structure tools |
+
+Additional sub-blocks (pages to process, bounding boxes, etc.) may appear based on product version—inspect the live
+block for full option parity.
+
+<Callout type="warning">
+  Mistral usage is **metered** and requires valid **API credentials** configured for your environment. Missing keys
+  produce runtime errors in execution logs, not in-authoring-time validation.
+</Callout>
+
+## Operational checklist
+
+<Steps>
+  <Step>Confirm <code>MISTRAL_API_KEY</code> (or your fork’s variable names) is set server-side.</Step>
+  <Step>Test with a tiny two-page PDF before running invoice batches.</Step>
+  <Step>Use <strong>Markdown</strong> output when you want headings/lists preserved for summarization.</Step>
+  <Step>Redact sensitive PDFs before uploading to shared dev tenants.</Step>
+</Steps>
+
+<Tabs items={['URL mode', 'Upload mode']}>
+  <Tab>
+    Ensure URLs are **publicly reachable** from the app server’s network (no `localhost` from your laptop unless
+    tunneled). Verify TLS cert chain issues do not cause fetch failures.
+  </Tab>
+  <Tab>
+    Upload requires storage backing (`USE_S3=true` patterns). Respect **max size**; split large PDFs if policy
+    allows.
+  </Tab>
+</Tabs>
+
+## Compared to other doc tools
+
+- **Vision** blocks handle **images**; Mistral Parser targets **PDF bytes** with OCR/layout awareness.  
+- **Firecrawl / Jina** target **web pages**, not binary PDF hosting (unless URL points to PDF—then Parser fits).  
+
+## Troubleshooting
+
+| Symptom | Likely cause |
+| --- | --- |
+| 401 from provider | API key missing/rotated |
+| Empty text | Scanned PDF with restrictions or corrupt file |
+| Upload disabled | Environment not configured for file ingest |
+
+## Related
+
+- [OpenAI](../tools/openai) — alternate LLM stacks  
+- [Agent](./agent) — consume parsed text  

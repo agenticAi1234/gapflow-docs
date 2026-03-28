@@ -1,0 +1,168 @@
+---
+title: OmniDimension
+description: Voice AI agents, outbound calls, bulk campaigns, agents, and call logs via OmniDimension
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+{/* MANUAL-CONTENT-START:intro */}
+
+**OmniDimension** brings **programmatic telephony** and **voice AI agents** into Gapflow. The platform integrates with
+OmniDimension’s hosted API (`backend.omnidim.io`) to create **single outbound calls**, manage **bulk/campaign**
+dials, **author agents** with rich voice + model configuration, and **retrieve call analytics** across single-call or
+campaign scopes. All server calls use **Bearer authentication**; credentials originate from Gapflow’s integration
+settings and are injected into tool runs exactly like other first-party connectors.
+
+Typical use cases include **collections outreach** (with regulatory oversight), **appointment confirmations**,
+**IVR replacement experiments**, and **ops bridges** that need both structured workflow logic and live audio. You
+can pair OmniDimension blocks with CRM tools (Salesforce, HubSpot, etc., where enabled) to close the loop on
+dispositions.
+
+{/* MANUAL-CONTENT-END */}
+
+## Architectural notes
+
+Gapflow blocks wrap four distinct tool IDs (see table below). Each tool uses **directExecution** on the server,
+meaning the HTTP interaction is mediated through the platform’s `/api/tools/execute` proxy for consistent logging
+and secret handling.
+
+<Callout type="info">
+  Always provision **OmniDimension API keys** via **Tool integration** before configuring blocks—dropdowns that
+  list agents or phone numbers call helper routes that depend on valid credentials.
+</Callout>
+
+## Blocks and tool IDs
+
+| User-facing block | Tool ID | Primary capability |
+| --- | --- | --- |
+| Create call | `omnidimension_dispatch_call` | Single outbound AI call |
+| Campaign / bulk | `omnidimension_campaign_call` | Batch dialing with optional scheduling + retries |
+| Create agent | `omnidimension_create_agent` | Provision a new voice agent programmatically |
+| Call logs | `omnidimension_call_logs` | Paginated analytics (`single` vs `campaign`) |
+
+## `omnidimension_dispatch_call`
+
+Places one call through a specified **agent** and **from** phone number ID.
+
+### Workflow
+
+<Steps>
+  <Step>Select an <strong>agent</strong> that already exists in OmniDimension (UI dropdown uses fetch helpers).</Step>
+  <Step>Enter callee <code>toNumber</code> in E.164 format.</Step>
+  <Step>Pick <strong>From Phone Number</strong>—this maps to <code>fromNumberId</code> from the provider API.</Step>
+  <Step>Optional: add natural-language <code>additionalCallContext</code> or structured <code>callContextVariables</code>.</Step>
+  <Step>Optional: set <code>webhookUrl</code> to receive asynchronous results.</Step>
+</Steps>
+
+### Important parameters
+
+| Parameter | Required | Notes |
+| --- | --- | --- |
+| `agentId` | Yes | Voice agent ID |
+| `toNumber` | Yes | Destination line |
+| `fromNumberId` | Yes | Must not be empty string—use dropdown selection |
+| `additionalCallContext` | No | Free-text agent briefing |
+| `callContextVariables` | No | JSON array or string; merges into `call_context` object |
+| `webhookUrl` | No | POST target for completion payloads |
+
+### Responses
+
+Outputs include provider `requestId`, `status`, and counts such as `custom_variables_count` when returned by the
+API.
+
+## `omnidimension_campaign_call`
+
+Creates a **bulk** dialing campaign—ideal when calling down a list captured from a spreadsheet, CRM export, or API.
+
+### Data expectations
+
+- **`contacts`** must be a non-empty array.  
+- Each object should expose `phone_number`; `phone` may be used when **`fieldMapping`** remaps columns.  
+- **`fieldMapping`** accepts `[{ sourceField, targetField }]` objects to align arbitrary CSV keys with Omni fields.  
+
+### Scheduling and retries
+
+When `isScheduled` is true, you must supply **`scheduledDatetime`** and **`timezone`**. Retry behavior toggles via
+`enableRetry`, with schedules such as `immediately`, `next_day`, or `scheduled_time`. Retry limits clamp between
+provider-supported bounds (implementation enforces sane maximums).
+
+### Output
+
+Returns identifiers such as `bulk_call_id`, campaign `status`, and human-readable `message` fields for auditing.
+
+<Tabs items={['Field mapping tips', 'Concurrency']}>
+  <Tab>
+    Start with a tiny CSV (5 rows) and verbose logging to validate mapping before launching thousands of rows.
+    Mis-mapped `phone_number` causes hard failures early in validation.
+  </Tab>
+  <Tab>
+    Use `concurrentCallLimit` when your carrier contract or risk posture requires throttling simultaneous live calls.
+  </Tab>
+</Tabs>
+
+## `omnidimension_create_agent`
+
+Provision agents without visiting OmniDimension’s native UI—useful when onboarding workflows generate **unique**
+agents per customer.
+
+### Core required fields
+
+| Parameter | Purpose |
+| --- | --- |
+| `name` | Display label |
+| `welcomeMessage` | First spoken content |
+| `contextBreakdown` | Array of `{ title, body }` knowledge sections |
+
+### Optional advanced sections
+
+When enabled in the block UI you may configure:
+
+- **Transcriber** — provider/model, timeouts, formatting flags  
+- **Model** — LLM name + temperature for reasoning inside calls  
+- **Voice** — TTS provider + voice id  
+- **Webhook** — completion callbacks with include lists + extracted variable prompts  
+- **Dynamic variables** — `{ key, value }` tuples (or field-mapping compatible structures)  
+
+Outputs mirror OmniDimension’s **create agent** JSON—store returned IDs in your database or follow-up tools.
+
+## `omnidimension_call_logs`
+
+Unified log reader with two modes:
+
+### `operation = "single"`
+
+- Endpoint: `GET /api/v1/calls/logs`  
+- Supports pagination via `page` / `pageSize` (max page size **100**), `agentId` filters (use `all` to disable filtering), `callStatus` filters, and optional **`fromDate` / `toDate`** in **`DD/MM/YYYY`** format for client-side trimming of `time_of_call`.  
+
+### `operation = "campaign"`
+
+- Endpoint: `GET /api/v1/calls/bulk_call`  
+- Summaries include totals for completed/pending/failed calls and cost rollups.  
+
+<Callout type="warning">
+  Date filtering for single-call mode happens **after** download—wide windows may be expensive. Prefer narrow
+  pagination loops in long-lived monitoring workflows.
+</Callout>
+
+## Operational guidance
+
+- **Rate limits:** honor OmniDimension provider ceilings; add backoff Function blocks if you receive HTTP 429 analogs.  
+- **Compliance:** record consent metadata in parallel stores when required—Gapflow does not replace legal counsel.  
+- **Secrets:** rotate API keys regularly; use org credentials for shared agents, personal only when appropriate.  
+
+## Troubleshooting
+
+| Symptom | Checks |
+| --- | --- |
+| 401 errors | API key typo or expired |
+| `fromNumberId` rejected | Dropdown stale—re-fetch numbers |
+| Campaign empty results | Contacts missing `phone_number` after mapping |
+| Logs missing rows | Pagination finished—increment `page` |
+
+## Related documentation
+
+- [GapTel SMS](./gaptel) — SMS companion channel  
+- [Tools index](./) — CRM and data prep tools feeding campaigns  
+- [Execution](../execution/basics) — error handling during telephony workflows  

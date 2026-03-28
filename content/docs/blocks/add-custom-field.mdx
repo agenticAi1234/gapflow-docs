@@ -1,0 +1,51 @@
+---
+title: Add Field
+description: Enrich JSON objects or arrays with new keys and constant or computed values
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+The **Add Field** block (`add_custom_field`) **enriches** data: you provide a JSON **array** of objects and a list
+of **custom fields** (name + value) to attach to each row. Use it for timestamps, environment tags, static
+defaults, or glue values derived from earlier blocks (via references in value cells).
+
+## Configuration
+
+| Sub-block | Purpose |
+| --- | --- |
+| **Input Data** | JSON array in the code editor. |
+| **Custom Fields** | UI to add rows: field **name** and **value** (supports references). |
+| **Overwrite Existing Fields** | `Skip` keeps first occurrence; `Overwrite` replaces if key already exists. |
+
+## Outputs
+
+| Field | Meaning |
+| --- | --- |
+| `data` | Enriched JSON |
+| `fieldsAdded` | How many new keys were written |
+| `recordCount` | Rows/objects processed |
+
+<Callout type="info">
+  This block **adds** keys; it does not rename-remove like **[Field Mapper](./field-mapper)**. Chain Mapper → Add
+  Field when you both project and enrich.
+</Callout>
+
+## Example use cases
+
+- Stamp `processedAt: ISO-8601` before writing to a warehouse.  
+- Add `source: "gapflow"` for lineage when sending to webhooks.  
+- Attach `tenantId` from an organization variable to each CRM row.  
+
+## Safe rollout
+
+<Steps>
+  <Step>Start with <strong>Skip</strong> overwrite to avoid clobbering upstream keys accidentally.</Step>
+  <Step>Validate output row count matches <code>recordCount</code>.</Step>
+  <Step>Switch to <strong>Overwrite</strong> only when you intentionally refresh metadata each run.</Step>
+</Steps>
+
+## Related
+
+- [Field Mapper](./field-mapper)  
+- [Json Array Merger](./json-array-merger)  

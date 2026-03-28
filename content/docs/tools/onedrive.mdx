@@ -1,0 +1,34 @@
+---
+title: OneDrive
+description: List, read, upload, and delete files via Microsoft Graph
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+**OneDrive** tools use **Microsoft Graph** to work with files in a user’s OneDrive (within the scopes granted at connect time). Workflows can **list** folders, **read** file content, **upload** new content, and **delete** files when your policy allows.
+
+## Prerequisites
+
+- Microsoft 365 / Azure AD app registration with **Files** permissions appropriate for your scenario (e.g. `Files.Read`, `Files.ReadWrite`)  
+- **Settings → Tool integration**: connect the Microsoft account used for Graph  
+- Confirm whether your deployment uses **delegated** vs **application** permissions—behavior follows the connected integration
+
+<Callout type="info">
+  OneDrive and [Office 365 email](./office365-email) often share the same Microsoft identity. Grant only the **minimum** Graph scopes required for each workflow.
+</Callout>
+
+## Tool IDs
+
+| Tool ID | Purpose |
+| --- | --- |
+| `onedrive_list` | List items in a path |
+| `onedrive_read` | Read file content |
+| `onedrive_upload_content` | Upload or replace content |
+| `onedrive_delete` | Delete a file |
+
+See `apps/sim/tools/onedrive/` for parameters (paths, drive IDs, conflict behavior).
+
+## Related documentation
+
+- [Office 365 email](./office365-email) — send mail via Graph  
+- [Tools index](./)  

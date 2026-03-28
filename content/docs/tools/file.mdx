@@ -1,0 +1,19 @@
+---
+title: File
+description: Parse and work with uploaded or referenced file content
+---
+
+The **File** tool (`file_parser`) reads and parses file content in supported formats so downstream blocks can consume structured output. It is distinct from cloud storage tools ([S3](./s3), [Google Drive](./google_drive), [OneDrive](./onedrive)), which move bytes to and from remote systems.
+
+## Tool ID
+
+| Tool ID | Purpose |
+| --- | --- |
+| `file_parser` | Parse file inputs per the tool’s supported types and options |
+
+See `apps/sim/tools/file/` for format coverage and limits (size, sandboxing).
+
+## Related documentation
+
+- [Function](./function) — custom code when parsing needs exceed the File tool  
+- [Tools index](./)  

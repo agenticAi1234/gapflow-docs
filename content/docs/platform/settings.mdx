@@ -1,0 +1,98 @@
+---
+title: Settings
+description: Tool integration, AI integration, log retention, and environment-driven configuration
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+{/* MANUAL-CONTENT-START:intro */}
+
+The **Settings** area is where individual preferences meet **organizational policy**: connecting SaaS accounts,
+scoping credentials, tuning log retention, and (critically for self-hosted deployments) aligning **environment
+variables** with what the UI advertises as supported AI models. Many failures that appear as “model not available”
+or “summarizer offline” are not bugs in the canvas—they are **missing keys** or mismatched **model IDs** on the
+server.
+
+This page complements per-tool documentation under **Tools** in the sidebar. Settings answers **where** credentials
+live globally; each tool page answers **how** to structure parameters for a given provider.
+
+{/* MANUAL-CONTENT-END */}
+
+## Tool integration
+
+**Tool integration** is the modern name for what teams historically called “Tools”, “Integrations”, or
+“Credentials.” Here you:
+
+- Connect **OAuth** identities (Google, Slack, etc.) where supported  
+- Store **API keys** for providers that use direct auth  
+- Distinguish **personal** vs **organization** credential scopes  
+
+Tool blocks on the canvas reference these connections through **credential pickers**. If a picker is empty, the
+user either lacks permission to view org secrets or nobody has connected the provider yet.
+
+<Callout type="info">
+  Organization credentials are visible **only** inside the owning organization. Personal credentials may follow the
+  user when switching orgs—confirm with your security team before relying on that for regulated data.
+</Callout>
+
+### Setup checklist for integrations
+
+<Steps>
+  <Step>Identify whether the tool needs <strong>OAuth</strong> or <strong>API key</strong> style auth.</Step>
+  <Step>Create credentials under the correct scope (<strong>personal</strong> vs <strong>organization</strong>).</Step>
+  <Step>Grant <strong>execute</strong> permissions to builders who must run the tool.</Step>
+  <Step>Test in a scratch workflow before promoting to production canvases.</Step>
+</Steps>
+
+## AI integration
+
+AI features—**workflow summarization**, default models for certain blocks, or server-side assist—often read **API
+keys**, **base URLs**, and **model allowlists** from **environment variables** on the application server, not
+only from interactive settings.
+
+<Callout type="warning">
+  **Configure environment variables first** in your hosting layer (Docker, Kubernetes, Vercel, etc.). Examples often
+  include `OPENAI_API_KEY`, alternate provider keys, and model names. The UI may list **supported models** derived
+  from that configuration—if the env var is absent, the feature may be hidden or fail at runtime with a terse error.
+</Callout>
+
+<Tabs items={['Summarizer', 'Operational tips']}>
+  <Tab>
+    The **workflow summarizer** inspects structure—blocks, edges, loops, notes—and produces a human-readable
+    explanation. It depends on whichever LLM backend your deployment wires up. Expect latency proportional to
+    graph size; very large workflows may hit token limits—consider summarizing subgraphs manually first.
+  </Tab>
+  <Tab>
+    Rotate keys on a schedule; use **separate** keys for dev/stage/prod; monitor **rate limits**; capture server
+    logs when users report generic “AI unavailable” messages—often the HTTP body contains the real provider error.
+  </Tab>
+</Tabs>
+
+Consult your repository’s `.env.example` or operator handbook for **exact** variable names—forks diverge.
+
+## Log retention
+
+Administrators configure how long **execution** and sometimes **audit** records remain **online** before rotation.
+Shorter retention saves database costs; longer retention eases investigations. Balance against legal **minimums**
+for your industry.
+
+This interacts with [Logs & reports](./logs-and-reports): exporting **reports** before purges normalize is a
+cheap insurance policy.
+
+## Privacy and telemetry
+
+Separate toggles may capture **anonymous usage** or error telemetry to improve the product. Security-conscious orgs
+should document their stance in internal policy and disable telemetry where consistent with contracts.
+
+## User preferences
+
+Themes, locale, notification email preferences—typically **per user**—live near general settings. They do **not**
+override org-wide **AI** or **credential** policies.
+
+## Related documentation
+
+- [Tools index](../tools) — provider-specific parameters  
+- [Logs & reports](./logs-and-reports) — what retention affects  
+- [Platform overview](./index) — governance context  

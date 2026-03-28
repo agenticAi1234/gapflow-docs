@@ -1,0 +1,44 @@
+---
+title: Bright Pattern
+description: Contact-center lists and records via Bright Pattern APIs
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+Bright Pattern is a **contact-center platform**. In Gapflow, first-party tools talk to your Bright Pattern tenant so workflows can **create and manage lists**, **upload and update records**, and **read data** for routing, reporting, or hand-off to other blocks.
+
+## Prerequisites
+
+- A Bright Pattern account with API access appropriate for your use case  
+- **Settings → Tool integration** (or your deployment’s equivalent): connect the **Bright Pattern** provider and complete OAuth or the credential flow your operator requires  
+- For canvas blocks that pick lists in the UI, ensure the signed-in integration can see the target lists (permissions and tenant URL must match)
+
+## Available tools
+
+These tools are registered in the product (see `apps/sim/tools/brightpattern/`). Use them as **standalone tool blocks** or attach them to **Agent** blocks where the model should call Bright Pattern on your behalf.
+
+| Tool ID | Purpose |
+| --- | --- |
+| `brightpattern_get_lists` | Discover lists available to the connected account |
+| `brightpattern_get_list_details` | Metadata and columns for a specific list |
+| `brightpattern_upload` | Insert or bulk-upload records into a list |
+| `brightpattern_update` | Update existing records |
+| `brightpattern_delete` | Remove records |
+| `brightpattern_get` | Read / query records |
+| `brightpattern_create` / `brightpattern_create_list` | Create a new list |
+
+Exact parameters and field names follow the Bright Pattern APIs wrapped by each tool; configure inputs using references from upstream blocks so you do not hard-code secrets or tenant-specific IDs in prompts.
+
+<Callout type="warn">
+  Bright Pattern may enforce **rate limits** on API traffic. If a workflow hits limits during list discovery or bulk uploads, add backoff, reduce concurrency, or split work across runs—see product logs for the exact error text.
+</Callout>
+
+## Canvas blocks
+
+Gapflow also ships **Bright Pattern–oriented blocks** (for example, flows that create interactions or sync with lists). Those live in the block library alongside other integrations; pair them with the tools above when you need **headless** API access without the full block UI.
+
+## Related documentation
+
+- [Tools index](./) — all documented integrations  
+- [Settings – Tool integration](../platform/settings) — credentials and environment  
+- [Blocks index](../blocks) — workflow building blocks, including data-shaping utilities  

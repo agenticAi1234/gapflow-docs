@@ -1,0 +1,75 @@
+---
+title: Filters
+description: Filter JSON or CSV rows with composable conditions and AND/OR logic
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+The **Filters** block (`json_filter`) keeps or drops **rows** in structured data. Provide input as **JSON array**
+or **CSV**, define one or more **conditions**, and choose whether **all** conditions must match (**AND**) or **any**
+(**OR**).
+
+## Condition shape
+
+Each condition is an object with:
+
+- **`field`** — column or property name (`status`, `user.tier` if nested paths supported)  
+- **`operator`** — `equals`, `notEquals`, `contains`, `greaterThan`, `lessThan`, `exists`, …  
+- **`value`** — comparison literal (where applicable)  
+
+Example JSON in the **Filter Conditions** area:
+
+```json
+[
+  { "field": "status", "operator": "equals", "value": "active" },
+  { "field": "score", "operator": "greaterThan", "value": 0.8 }
+]
+```
+
+## Data formats
+
+| Format | Extra options |
+| --- | --- |
+| **JSON** | `inputData` as array string / reference |
+| **CSV** | **Delimiter**, **Has Headers** |
+
+## Other toggles
+
+- **Logic Operator** — combine conditions with `and` vs `or`.  
+- **Case Sensitive** — string compare behavior for `contains` / `equals`.  
+
+## Outputs
+
+- `data` — filtered rows  
+- `filteredCount` — surviving rows  
+- `originalCount` — input rows before filter  
+- `format` — echo of format metadata when present  
+
+<Callout type="warning">
+  Invalid JSON in the conditions field fails fast—validate in a JSON linter before production runs.
+</Callout>
+
+<Tabs items={['Performance', 'Composition']}>
+  <Tab>
+    Filters run in-process—very wide CSVs cost memory. Trim columns upstream with **[Field Mapper](./field-mapper)**
+    first if you only need a few fields.
+  </Tab>
+  <Tab>
+    Typical pipeline: **[Converter](./converter)** → **Filters** → **Field Mapper** → tool block.
+  </Tab>
+</Tabs>
+
+## Workflow
+
+<Steps>
+  <Step>Inspect sample rows to learn field names and types.</Step>
+  <Step>Start with one <code>equals</code> condition; verify <code>filteredCount</code>.</Step>
+  <Step>Add more conditions; switch AND/OR intentionally—document logic in workflow notes.</Step>
+</Steps>
+
+## Related
+
+- [Field Mapper](./field-mapper)  
+- [Formatter](./formatter)  

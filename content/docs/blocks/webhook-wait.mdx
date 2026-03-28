@@ -1,0 +1,86 @@
+---
+title: Webhook Wait
+description: Pause workflow execution until an external HTTP request hits a unique webhook URL
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The **Webhook Wait** block solves asynchronous hand-offs: your workflow runs until it reaches this block, exposes a
+**one-time webhook URL**, then **suspends** until another system (payment provider, human approval, CRM callback)
+sends an HTTP request—or until a **timeout** elapses. The body and headers of that request become outputs for
+downstream blocks.
+
+Unlike a normal **API** block that *calls out*, Webhook Wait *listens*. The URL is only meaningful while the block
+is actively waiting during an execution; configure external systems to POST (or GET, etc.) **before** you expect the
+pause to resolve.
+
+## When to use it
+
+- **Payment or KYC** flows that resume when a provider webhook fires.  
+- **Human-in-the-loop** when another service bridges operator actions back into Gapflow.  
+- **Third-party job completion** (video render, document signing) without polling in a tight loop.  
+
+## Configuration
+
+| Sub-block / field | Purpose |
+| --- | --- |
+| **Webhook URL** | Use the in-app generator to mint a URL and **copy** it into the external system. |
+| **Timeout (seconds)** | How long to wait (min **60**, max **3600**). Default behavior is often around **180** seconds—confirm in UI. |
+| **HTTP Method** | Allowed verbs the listener accepts: `POST`, `GET`, `PUT`, `PATCH`. |
+| **Expected Content Type** | Helps parse body: JSON, form-encoded, plain text, XML, multipart. |
+
+<Callout type="warning">
+  Configure the **external** callback **before** running the workflow past this block. If the run reaches Webhook
+  Wait and nothing calls the URL within the timeout, the block fails or completes without payload—design error paths.
+</Callout>
+
+## Outputs
+
+The block exposes a structured response including:
+
+- **`waitId`** — correlation id for this wait instance  
+- **`webhookUrl`** — the URL that was generated  
+- **`payload`** — parsed body from the caller  
+- **`headers`** — incoming headers (useful for verifying signatures)  
+- **`method`** — HTTP method used  
+- **`receivedAt`** — timestamp  
+- **`waitDuration`** — how long the execution waited  
+
+Downstream blocks reference these via the usual `<blockId.response...>` connection syntax.
+
+## End-to-end setup
+
+<Steps>
+  <Step>Add <strong>Webhook Wait</strong> on the canvas where the async gap occurs.</Step>
+  <Step>Generate the URL and copy it into your external product&apos;s webhook settings.</Step>
+  <Step>Match <strong>method</strong> and <strong>content type</strong> to what the sender will use.</Step>
+  <Step>Set a <strong>timeout</strong> that covers worst-case latency (human steps need longer).</Step>
+  <Step>Test with <code>curl</code> or Postman against the URL while a test execution is waiting.</Step>
+  <Step>Branch downstream on missing payload vs success—timeouts should notify or retry per policy.</Step>
+</Steps>
+
+<Tabs items={['Security', 'Operations']}>
+  <Tab>
+    Validate **HMAC** or shared secrets using `headers` before trusting `payload`. Never expose webhook URLs in
+    public screenshots; rotate wait endpoints each run (they are unique per execution).
+  </Tab>
+  <Tab>
+    Long timeouts tie up execution workers—prefer shorter waits plus a **retry workflow** if your engine supports it,
+    rather than single waits of one hour unless necessary.
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+| Issue | Check |
+| --- | --- |
+| Timeout every time | External system wrong URL, method, or VPN blocking ingress |
+| Empty payload | Content type mismatch—sender uses `text/plain` but block expects JSON |
+| Immediate failure | Workflow not actually reaching wait state; generator not run |
+
+## Related blocks
+
+- [API](./api) — outbound HTTP calls  
+- [Checkpoint](./checkpoint) — synchronize parallel paths without external HTTP  

@@ -1,0 +1,103 @@
+---
+title: Super admin
+description: Cross-organization administration and template approvals
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+{/* MANUAL-CONTENT-START:intro */}
+
+A **super admin** operates **above** any single organization. While an **organization admin** cares about their
+own members, workspaces, and subscription posture, a super admin can reason about **all tenants** on the
+deployment: inspecting organizations, adjusting **Custom** resource allocations, reacting to abuse or migration
+events, and curating the **global template library** through approvals.
+
+This separation exists so that day-to-day customer admins **cannot** escalate themselves to platform god-mode by
+mistake. Super admin access should be rare, audited, and protected by your identity and infrastructure policies
+(database flags, internal VPN-only routes, break-glass accounts, etc.).
+
+{/* MANUAL-CONTENT-END */}
+
+## What a super admin can do (conceptual)
+
+Depending on how your fork is configured, super admins may:
+
+- Open a **super admin** console or route namespace distinct from `/w/...` workspace URLs  
+- List **organizations** and open detail views for support  
+- Edit **organization resources** for **Custom** plans (workflows caps, storage, members, execution time, …)  
+- **Deactivate** or **reactivate** organizations when policy requires a hard stop  
+- Manage the **template approval queue**: pending, approved, rejected; search by id or name; edit publishable
+  metadata; leave reviewer remarks  
+
+<Callout type="warning">
+  Super admin powers are **tenant-wide**. Compromise of a super admin account is a **severe** incident—enforce MFA,
+  IP allow lists, and narrow roster size wherever possible.
+</Callout>
+
+## Template approvals in depth
+
+User-submitted templates usually follow a **governance** path:
+
+<Steps>
+  <Step>A builder **publishes** from a workflow; metadata and a frozen **snapshot** are captured.</Step>
+  <Step>The submission enters **pending review** (unless your policy auto-approves—rare).</Step>
+  <Step>A super admin inspects preview, metadata, categories, and optional reviewer notes.</Step>
+  <Step>The template is <strong>approved</strong> (visible in Browse) or <strong>rejected</strong> with optional
+    feedback to the submitter.</Step>
+  <Step>Optional: super admin edits **display fields** (title, description, categories) without mutating history in
+    the immutable snapshot—exact rules depend on implementation.</Step>
+</Steps>
+
+**Search** in the approval UI helps match incidents to templates: filter by **status tab** (pending / approved /
+rejected) and query by **template id** or **name substring**.
+
+<Tabs items={['Metadata vs snapshot', 'Remarks']}>
+  <Tab>
+    **Metadata** is what end users see on cards in **Browse templates**—friendly title, services, summary text.
+    The **snapshot** is the technical graph used when someone clicks **Use template**. Super admins should avoid
+    implying they “fixed” a user’s blocks if only metadata changed—clarify what was edited when communicating back.
+  </Tab>
+  <Tab>
+    **Superadmin remarks** are optional notes to publishers—for example why something was rejected or what to
+    change before resubmitting. Keep remarks professional and specific to speed up resubmission cycles.
+  </Tab>
+</Tabs>
+
+## Organization lifecycle operations
+
+Sometimes you must **deactivate** an organization—non-payment, legal hold, data migration, or emergency response.
+While deactivated:
+
+- End users should see a clear **blocked** or **inactive org** experience  
+- Background jobs may be suppressed to avoid accruing usage  
+
+**Reactivation** restores normal use; it does not automatically undo data deleted during the inactive window—check
+backup policy.
+
+## Relation to organization admins
+
+| Topic | Organization admin | Super admin |
+| --- | --- | --- |
+| **Scope** | Single org they belong to | Entire deployment |
+| **Templates** | Submit from own org | **Approve/reject** library entries |
+| **Limits** | Works within assigned plan | Can set **Custom** resource rows |
+| **Membership** | Invites users to their org | May assist cross-org support scenarios |
+
+Org admins should **not** assume they can approve their own templates globally unless product policy says so—most
+deployments require super admin eyes for **public library** exposure.
+
+## Audit and accountability
+
+Because super admin actions affect many users:
+
+- Prefer **reason codes** or **internal tickets** linked to limit changes  
+- Rotate **shared** super admin credentials regularly  
+- Train operators on **GDPR** / data-residency implications before exporting org data  
+
+## Related documentation
+
+- [Resources & plans](./resources-plans) — what custom resource rows control  
+- [Templates](./templates) — publisher-facing publish and browse flows  
+- [Organization model](./organization) — what end users experience when an org is deactivated  

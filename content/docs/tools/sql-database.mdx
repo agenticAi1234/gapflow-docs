@@ -1,0 +1,26 @@
+---
+title: SQL Database
+description: Parameterized queries and statements against relational databases
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+The **SQL Database** tools run **parameterized** queries and execution paths against relational stores configured for your environment. Use them for analytics reads, narrow writes, or ETL-style steps—always with **least privilege** database users.
+
+## Tool IDs
+
+| Tool ID | Purpose |
+| --- | --- |
+| `sqldatabase_query` | Run read-oriented queries (SELECT) with validation |
+| `sqldatabase_execute` | Execute statements where permitted by policy |
+
+Details: `apps/sim/tools/sqldatabase/` (connection pooling, query validation, types).
+
+<Callout type="warn">
+  Use **read-only** roles for reporting workflows; grant **INSERT/UPDATE** only on narrow tables for write paths. Never construct SQL by concatenating untrusted LLM output—rely on parameterized APIs provided by the tool.
+</Callout>
+
+## Related documentation
+
+- [HTTP](./http) — generic REST escape hatch  
+- [Tools index](./)  

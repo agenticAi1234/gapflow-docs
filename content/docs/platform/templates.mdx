@@ -1,0 +1,109 @@
+---
+title: Templates
+description: Publishing workflows as templates and using the template library
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+{/* MANUAL-CONTENT-START:intro */}
+
+**Templates** bridge personal authoring and **organizational reuse**. A template is a packaged workflow—blocks,
+connections, loop structure, and tool configuration—plus **marketing-style metadata** (title, services/categories,
+short description) that helps others discover it in **Browse templates**. Because templates can encode best
+practices and approved integration patterns, many companies treat them as **governance artifacts**: only reviewed
+templates should appear in the public library.
+
+Publishing is **not** automatically the same as “share this JSON with a friend.” Depending on policy, submissions
+may sit in **pending review** until a **super admin** approves them. That gate protects your brand and prevents
+unfinished experiments from appearing next to production-ready starters.
+
+{/* MANUAL-CONTENT-END */}
+
+## Overview of the template lifecycle
+
+At a high level:
+
+1. A builder **authors** a workflow to the point it is reproducible.  
+2. They **publish** (or submit) through the templates UI—supplying metadata and confirming snapshot capture.  
+3. A **reviewer** (often super admin) **approves** or **rejects**; optional remarks explain decisions.  
+4. **Approved** templates surface in **Browse templates** with filters (search, **service** categories).  
+5. Consumers click **Use template** to **instantiate** a new workflow in their workspace (subject to permissions).  
+
+<Callout type="info">
+  The **snapshot** is the frozen technical graph; **metadata** is what humans read on cards. Editing metadata after
+  approval may be allowed for operators without changing historical snapshot semantics—see your deployment.
+</Callout>
+
+## My templates vs browse templates
+
+| Area | Audience | Typical contents |
+| --- | --- | --- |
+| **My templates** | The publisher | Drafts, **pending review**, **approved**, **rejected** items; may show reviewer remarks |
+| **Browse templates** | Whole org or deployment | **Approved** only; discovery-focused listing |
+
+Use **My templates** to track **submission state** and read feedback. Use **Browse** when you want a **curated**
+starting point you trust.
+
+## Publishing: what gets captured
+
+Publishing usually records:
+
+- **Workflow snapshot** — nodes, edges, loops, sub-block values needed to recreate behavior  
+- **Identity** — who published, from which organization context  
+- **Metadata** — `templateName`, use case / summary, description, **categories** (services), sometimes tags  
+- **Optional AI assistance** — some deployments pre-fill descriptions from LLMs; availability varies  
+
+<Tabs items={['Categories / services', 'Permissions']}>
+  <Tab>
+    **Categories** align workflows with filters in Browse (for example “Customer support”, “Marketing”). Consistent
+    tagging improves search relevance. Coordinators should maintain a **controlled vocabulary** if you have many
+    publishers.
+  </Tab>
+  <Tab>
+    **Publishing**, **listing mine**, and **instantiating** templates are permission-gated. If a user cannot see
+    **Use template**, check org capabilities—not every member may clone library content in restricted environments.
+  </Tab>
+</Tabs>
+
+## Review and quality bar
+
+Before submitting for review, authors should:
+
+- **Run** the workflow in a test workspace with safe data.  
+- **Remove** personal secrets from sub-blocks—prefer org credentials references.  
+- **Document** required credentials in the description so consumers know prerequisites.  
+- **Verify** loop bounds and external calls will not accidentally spam production systems when cloned.  
+
+Reviewers should reject with **actionable remarks** so authors can iterate quickly.
+
+## Consuming a template
+
+<Steps>
+  <Step>Open <strong>Browse templates</strong> and filter/search by name, id, or service.</Step>
+  <Step>Preview metadata and (if available) workflow snapshot or diagrams.</Step>
+  <Step>Click <strong>Use template</strong> and select target <strong>workspace</strong> if prompted.</Step>
+  <Step>Reconnect or authorize credentials required by tool blocks—imports do not magically carry secrets.</Step>
+  <Step><strong>Save</strong> and test before promoting to production traffic.</Step>
+</Steps>
+
+## AI-assisted metadata (where enabled)
+
+Some builds offer helpers to **draft** descriptions from the workflow graph. Treat suggestions as **starting
+text**: humans should still edit for clarity, compliance, and accurate prerequisite lists.
+
+## Troubleshooting
+
+| Issue | Likely cause |
+| --- | --- |
+| Stuck in **pending** | Awaiting super admin review |
+| **Rejected** with blank remark | Policy mismatch—ask reviewer for detail |
+| Browse shows **0** after picking service | Filter mismatch or API issue—verify category spelling |
+| **Use template** fails | Missing instantiate permission or workspace selection |
+
+## Related documentation
+
+- [Super admin](./super-admin) — approval queue behavior  
+- [Workflow editor](./workflow-editor) — saving before publish  
+- [Organization model](./organization) — org context for publishing  

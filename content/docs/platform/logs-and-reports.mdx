@@ -1,0 +1,118 @@
+---
+title: Logs & reports
+description: Execution logs, change logs, retention, and downloadable reports
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+{/* MANUAL-CONTENT-START:intro */}
+
+Operators need two complementary views of history: **what executed** (runtime) and **what changed** (design-time).
+Gapflow surfaces these as **Execution logs** and **Change logs** in the sidebar under **Audit Logs**. Mixing the
+two concepts confuses debugging: an execution failure is rarely fixed by inspecting version metadata alone, while
+a mysterious behavioral change after Tuesday’s deploy is often visible first in **change** history.
+
+Beyond raw logs, **Reports** aggregate execution records with filters and often support **download** to PDF or
+similar for stakeholders who will never sign into the canvas. **Retention** policies determine how long those
+artifacts remain queryable—critical for compliance budgeting.
+
+{/* MANUAL-CONTENT-END */}
+
+## Execution logs
+
+**Execution logs** capture **runs**: which workflow executed, timestamps, block-level messages, errors, severity
+levels, and enough context to reproduce incidents. They are the first stop when a customer says “it failed last
+night.”
+
+**Navigation:** Sidebar → **Audit Logs** → **Execution logs** (commonly `/w/logs`).
+
+Typical workflows:
+
+- Filter by **workflow**, **time range**, or **level** (error vs info).  
+- Open a single run and walk the **ordered steps**.  
+- Copy identifiers for support tickets linking runs to **deploys** or **versions**.  
+
+<Callout type="info">
+  Execution logs answer: **What path did the engine take?** They do not necessarily show **who edited** a block
+  yesterday—that is **change logs**.
+</Callout>
+
+## Change logs
+
+**Change logs** record **definition changes** over time: saves, version activations, restores, or similar audit
+events attached to workflow identity.
+
+**Navigation:** Sidebar → **Audit Logs** → **Change logs** (commonly `/w/versions`).
+
+Use them when:
+
+- A regression appeared **without** a code deploy—someone changed the graph.  
+- You need to prove **who** approved a configuration for compliance.  
+- You coordinate **rollback** to an earlier canonical version.  
+
+<Tabs items={['Execution vs change', 'Retention filter']}>
+  <Tab>
+    Think **execution logs** = *runtime trace*, **change logs** = *canvas / version lineage*. Pair both when
+    writing postmortems: execution tells you the symptom timeline; change tells you which definition version was
+    active.
+  </Tab>
+  <Tab>
+    Retention may apply differently to **execution** rows vs **audit/change** rows. Low-volume orgs keep full
+    history; high-volume orgs may cap hot storage—see <a href="./settings#log-retention">Settings → log retention</a>.
+  </Tab>
+</Tabs>
+
+## Log retention
+
+Retention controls **how long** log rows remain online before archival or deletion. Factors:
+
+- **Plan** tier and negotiated storage  
+- **Settings** toggles exposed to org admins  
+- **Operator** defaults on the deployment  
+
+Plan archival jobs **before** regulators ask for five-year-old proof—if retention is shorter than policy, export
+reports proactively.
+
+## Reports
+
+The **Reports** section focuses on **aggregated** views of execution data. Landing at `/w/reports` may redirect to
+`/w/reports/execution` by default.
+
+Features commonly include:
+
+- **Time window** filters  
+- **Level** filters (errors only, warnings, etc.)  
+- **Workflow** scoping  
+- **Download** button producing **PDF** (or similar) for offline review  
+
+Some builds add **audit**-style reports for compliance teams—check child routes if your menu shows multiple report
+types.
+
+<Steps>
+  <Step>Open <strong>Reports</strong> and set the narrowest time range that still captures the incident.</Step>
+  <Step>Add <strong>workflow</strong> and <strong>level</strong> filters to reduce noise.</Step>
+  <Step>Preview counts; then <strong>download</strong> for external sharing if permitted.</Step>
+  <Step>Cross-check surprising totals against raw <strong>Execution logs</strong> for outliers.</Step>
+</Steps>
+
+## Organization-level logs
+
+**Organization admins** may access **organization logs** that span multiple members—for investigations or
+operational oversight. Access remains subject to **permissions**; not every admin sees **all** user-level detail if
+policy segregates duties.
+
+## Troubleshooting
+
+| Symptom | Check |
+| --- | --- |
+| Empty log list | Clock skew, wrong workspace filter, or retention already purged data |
+| Execution ok but wrong behavior | **Change logs** / versions—confirm graph |
+| Report missing rows | Report filters exclude static IP/manual triggers—compare raw log query |
+
+## Related documentation
+
+- [Settings](./settings) — retention and telemetry  
+- [Workflow editor](./workflow-editor) — versions alongside change history  
+- [Roles & permissions](./roles-permissions) — who may view org-wide logs  

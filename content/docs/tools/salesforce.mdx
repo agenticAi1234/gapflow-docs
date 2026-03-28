@@ -1,0 +1,37 @@
+---
+title: Salesforce
+description: SOQL, CRM object CRUD, and opportunities via Salesforce APIs
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+The **Salesforce** integration lets workflows read and write CRM data—contacts, opportunities, custom objects, and more—using OAuth-backed access. Use these tools as **standalone tool blocks** or attach them to **Agent** blocks when the model should decide when to query or update Salesforce.
+
+## Prerequisites
+
+- A Salesforce org with API access appropriate for your integration  
+- **Settings → Tool integration**: connect Salesforce and complete OAuth (Connected App, callback URL, and scopes as required by your administrator)  
+- For write operations, follow your org’s **least-privilege** policy—prefer integration users with narrow profiles
+
+<Callout type="info">
+  Outbound updates to contacts or leads often involve **personal data**. Align field mapping and retention with your privacy program (for example GDPR purpose limitation) when workflows classify or enrich records before writes.
+</Callout>
+
+## Tool IDs
+
+| Tool ID | Purpose |
+| --- | --- |
+| `salesforce_retrieve` | Query / retrieve records (SOQL-oriented flows) |
+| `salesforce_get_fields` | Inspect field metadata for an object |
+| `salesforce_create` | Create records |
+| `salesforce_update` | Update records |
+| `salesforce_delete` | Delete records |
+| `salesforce_opportunities` | Work with opportunity records (pipelines, stages) |
+
+Parameter names, required fields, and response shapes match the implementations under `apps/sim/tools/salesforce/`. Prefer **references** from upstream blocks for IDs and tokens rather than pasting secrets into prompts.
+
+## Related documentation
+
+- [HubSpot](./hubspot) — CRM alternative / complement  
+- [Dynamics 365](./dynamics365) — Microsoft Dataverse / CRM  
+- [Tools index](./)  

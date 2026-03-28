@@ -1,0 +1,120 @@
+---
+title: Organization model
+description: How organizations, workspaces, and membership work in Gapflow
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+{/* MANUAL-CONTENT-START:intro */}
+
+An **organization** in Gapflow is much more than a billing record: it is the **security and data boundary** for most of what you build. Workflows, workspaces, folders, organization credentials, and much of your usage telemetry are **owned by** or **attributed to** an organization. Users can belong to **multiple** organizations over time (for example your company and a client tenant), but they work in **one active org context** at a time in the editor.
+
+Understanding this model prevents confusion when files “disappear”—they did not vanish; you likely **switched orgs** or lack **permission** in the org you are viewing. It also clarifies why **personal** integrations may still work after an org switch while **org-specific** secrets do not.
+
+{/* MANUAL-CONTENT-END */}
+
+## Overview
+
+An **organization** is the primary container for:
+
+- **Members** — users with a role (owner, admin, member, or similar)
+- **Workspaces** — named areas that hold workflows; all workspaces belong to the org
+- **Workflows and folders** — created inside workspaces; counted against plan limits
+- **Organization credentials** — API keys and OAuth connections scoped to this org
+- **Usage and limits** — storage, executions, members, and more (see [Resources & plans](./resources-plans))
+
+You **switch the active organization** from workspace or organization controls in the shell UI. Until you switch, newly created resources are created **in that org**.
+
+## Hierarchy (mental model)
+
+Think of four nested layers. Each layer answers a different question:
+
+1. **Organization** — “Which tenant am I working in, and what are my global limits?”
+2. **Workspace** — “Which team or project bucket holds my workflows?”
+3. **Workflow** — “Which canvas am I editing or executing?”
+4. **Folders** — “How do I group workflows inside this workspace for navigation?”
+
+<Callout type="info">
+  **Personal credentials** can follow the user across organizations where product policy allows. **Organization
+  credentials** are only available while you are operating in that organization—they are not silently shared
+  across unrelated tenants.
+</Callout>
+
+## Switching organizations safely
+
+Before you run a production workflow or publish a template, confirm:
+
+- The **correct organization** is selected in the UI header or workspace switcher.
+- The **workspace** you expect is active (some actions are workspace-scoped).
+- You have **edit** or **execute** permissions on the target workflow (see [Roles & permissions](./roles-permissions)).
+
+Misaligned context is one of the most common sources of “I do not see my workflow” support tickets.
+
+## Joining an organization
+
+When you **accept an invitation**:
+
+1. You become a **member** with the role the inviter assigned.
+2. You typically receive a **default workspace** so the product has a clear place to put new workflows.
+3. Your **effective capabilities** still depend on **permission assignments**—membership alone does not guarantee you
+   can create workflows, run executions, or view org-wide logs.
+
+<Callout type="warning">
+  A new member might describe the experience as “nothing works until my admin fixes permissions.” That is often
+  accurate: they have identity + membership, but no **capability grants** yet. Route them to [Roles &
+  permissions](./roles-permissions).
+</Callout>
+
+## Invitations and lifecycle
+
+Organization **admins** (and sometimes other delegated roles) invite users **by email**. The flow is usually:
+
+<Steps>
+  <Step>Admin sends invite from the organization **Users** or **Members** area.</Step>
+  <Step>Invitee clicks the link, signs in or signs up, and accepts membership.</Step>
+  <Step>Admin assigns **roles** and **permission sets** appropriate to the user&apos;s job function.</Step>
+  <Step>Optional: peers **share** specific workspaces for collaboration—see <a href="./collaboration">Collaboration</a>.</Step>
+</Steps>
+
+Until acceptance, the user is not a member and cannot access org-scoped routes.
+
+## Organization admin visibility
+
+**Admins** often need to see **workspaces across the organization**—for example to help a stuck member or to
+review resource usage. Product screens under the organization area may list:
+
+- Members and their roles  
+- Workspaces and owners  
+- Logs or reports (subject to permissions)  
+
+This **visibility** is different from **collaboration**: an admin seeing a workspace for governance is not the
+same as a peer having **edit** rights on your canvas. Use explicit sharing when you want joint editing; see
+[Collaboration](./collaboration).
+
+## Organization status (active vs deactivated)
+
+In some deployments, **super admins** or operators can **deactivate** an organization. While deactivated, normal
+users should expect the product to **block** or clearly **surface** that the org cannot run workflows. This is a
+platform safety valve—not an everyday workflow. Reactivation restores access without requiring users to recreate
+accounts.
+
+## Frequently asked questions
+
+**Q: I belong to two companies in Gapflow—will my workflows mix?**  
+A: They remain under their respective organizations. Switch org context to see each set.
+
+**Q: Can I use the same email in multiple orgs?**  
+A: Typically yes; membership is per organization.
+
+**Q: Where do templates “live”?**  
+A: Submissions are tied to publisher identity and org policy; the **approved library** is visible in **Browse templates**. See [Templates](./templates).
+
+**Q: Do folders replace workspaces?**  
+A: No. Folders organize workflows **inside** a workspace. See [Workflow editor](./workflow-editor).
+
+## Related documentation
+
+- [Roles & permissions](./roles-permissions) — what members can do after they join  
+- [Resources & plans](./resources-plans) — caps that apply to the whole org  
+- [Collaboration](./collaboration) — sharing with colleagues inside the org  

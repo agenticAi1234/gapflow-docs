@@ -1,0 +1,26 @@
+---
+title: Function
+description: Execute controlled JavaScript/TypeScript from a workflow
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+The **Function** tool (`function_execute`) runs **hosted or inline** logic in the product’s controlled runtime. Use it when you need custom transforms, validation, or glue code that does not warrant a full external service.
+
+<Callout type="warn">
+  Treat Function executions like application code: **no hard-coded secrets**, minimal scope, and clear error handling. Prefer native tools or **HTTP** with stored credentials when integrating external APIs.
+</Callout>
+
+## Tool ID
+
+| Tool ID | Purpose |
+| --- | --- |
+| `function_execute` | Run the configured function with supplied inputs |
+
+See `apps/sim/tools/function/` for execution limits and patterns.
+
+## Related documentation
+
+- [File](./file) — parsing without custom code  
+- [HTTP](./http) — call external HTTP APIs  
+- [Tools index](./)  

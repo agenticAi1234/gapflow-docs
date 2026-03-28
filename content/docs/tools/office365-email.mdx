@@ -1,0 +1,31 @@
+---
+title: Office 365 email
+description: Send mail through Microsoft Graph (Office 365)
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+The **Office 365 email** tool sends messages using **Microsoft Graph** (`Mail.Send` and related flows). It complements [Gmail](./gmail) for tenants standardized on Microsoft 365.
+
+## Prerequisites
+
+- Azure AD app with **`Mail.Send`** (and any other scopes your template requires)  
+- **Settings → Tool integration**: complete OAuth for the Microsoft account that will send mail  
+- Verified **sender** addresses and anti-abuse policies per your organization
+
+<Callout type="warn">
+  Automated outbound email may be subject to **compliance** and **marketing** rules. Use approved from-addresses and avoid sending bulk or sensitive content without review.
+</Callout>
+
+## Tool ID
+
+| Tool ID | Purpose |
+| --- | --- |
+| `office365_email_send` | Send an email via Graph |
+
+Implementation: `apps/sim/tools/office365-email/`. Successful sends typically return **202 Accepted** from Graph with no body—handle success and errors in your workflow’s downstream logic.
+
+## Related documentation
+
+- [OneDrive](./onedrive) — files via Graph  
+- [Tools index](./)  

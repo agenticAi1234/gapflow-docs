@@ -1,0 +1,67 @@
+---
+title: Search and Merge (JSON arrays)
+description: Join multiple JSON arrays on a similarity key—even when column names differ
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The **Search and Merge** block (`json_array_merger`) solves **entity alignment**: you have two (or more) arrays that
+describe the same real-world records but use different field names for the identifier—`Id` in one feed, `accountId`
+in another, `acId` in a third. You configure each array and the **similarity field** (join key) per array; objects
+with equal key values **merge** into one combined object. Unmatched rows still appear in the output so you do not
+silently drop data.
+
+## When to use it
+
+- **CRM + billing** exports keyed differently but sharing an account id.  
+- **Product catalog** enrichment where SKUs match but attribute names differ.  
+- **ETL** stages before sending a unified payload to **[Field Mapper](./field-mapper)** or an API block.  
+
+## Configuration
+
+The **Array Inputs** custom editor lets you:
+
+1. Register each source array (often via references like `<toolA.items>`).  
+2. Specify which field in **that** array represents the join key.  
+
+The executor walks arrays, buckets by normalized key values, and merges properties—later arrays can **overlay**
+fields from earlier ones depending on merge rules in implementation (confirm behavior with a small fixture).
+
+## Outputs
+
+| Field | Meaning |
+| --- | --- |
+| `data` | Merged JSON array |
+| `mergedCount` | How many merges/coalescing events occurred (per engine semantics) |
+| `totalCount` | Total output rows |
+
+<Callout type="info">
+  If keys are **formatted differently** (`"001"` vs `1`), joins may miss—normalize with **[Formatter](./formatter)**
+  or **[Field Mapper](./field-mapper)** first.
+</Callout>
+
+<Tabs items={['Design', 'Debugging']}>
+  <Tab>
+    Draw a quick ERD on paper: circle the logical entity, list each feed’s key column, verify **one** stable primary
+    key per feed before wiring the block.
+  </Tab>
+  <Tab>
+    When counts look wrong, log each array’s length **before** merge and spot-check a single id manually in the JSON.
+  </Tab>
+</Tabs>
+
+## Suggested validation flow
+
+<Steps>
+  <Step>Copy three records from each source into static JSON in test sub-flows.</Step>
+  <Step>Merge; inspect one known id that exists in all sources—it should have union of fields.</Step>
+  <Step>Inspect an id present in only one feed—it should still surface without null explosion.</Step>
+  <Step>Scale to full arrays only after spot checks pass.</Step>
+</Steps>
+
+## Related
+
+- [Field Mapper](./field-mapper) — harmonize field names **after** merge  
+- [Filters](./filters) — drop partial joins if you need inner-join semantics only  

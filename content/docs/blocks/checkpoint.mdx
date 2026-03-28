@@ -1,0 +1,65 @@
+---
+title: Checkpoint
+description: Synchronize parallel branches or introduce timed delays in workflows
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The **Checkpoint** block is a **flow-control** primitive. It does not fetch data; it shapes **when** downstream
+nodes fire relative to **parallel upstream** work or intentional **delays**.
+
+## Modes
+
+### Wait for all
+
+Use when multiple branches (e.g., two API calls, an Agent and a Tool) must **complete** before the next section
+runs. The checkpoint acts as a **barrier**, reducing race conditions—especially important when a later Function
+expects **both** inputs to be populated.
+
+### Set waiting time
+
+Introduces a **sleep** for N seconds before releasing downstream blocks. Helpful for **rate limiting**, crude
+polling backoff (though dedicated wait/webhook patterns are often better), or demo pacing.
+
+| Sub-block | Visible when |
+| --- | --- |
+| **Mode** | Always—choose `wait_for_all` or `set_waiting_time` |
+| **Waiting Time (seconds)** | Only for timed mode |
+
+## Outputs
+
+The response typically includes:
+
+- **`synchronized`** — whether barrier logic satisfied  
+- **`inputCount`** — how many upstream paths were acknowledged  
+- **`message`** — human-readable status for logs  
+
+Exact semantics follow the executor implementation—always verify with a **parallel test graph**.
+
+<Callout type="info">
+  Checkpoints **do not** replace **[Webhook Wait](./webhook-wait)** for external events—they coordinate **internal**
+  parallelism or inject **time**, not HTTP callbacks.
+</Callout>
+
+<Tabs items={['Parallel design', 'Timed mode cautions']}>
+  <Tab>
+    Draw parallel edges into the Checkpoint, single edge out. Avoid diamond-shaped cycles unless loops are
+    intentional; unintended cycles can stall the engine.
+  </Tab>
+  <Tab>
+    Long sleeps occupy workers—prefer provider-native **retry-after** handling or asynchronous webhooks for minute+
+    delays.
+  </Tab>
+</Tabs>
+
+## Testing matrix
+
+1. **Single upstream** + wait-for-all → should pass through immediately.  
+2. **Two upstreams**—delay one artificially—to verify barrier waits for the slowest path.  
+3. **Timed mode**—measure wall clock vs configured seconds.  
+
+## Related
+
+- [Webhook Wait](./webhook-wait) — async external resume  
+- [Condition](./condition) — branch on data, not time barriers  

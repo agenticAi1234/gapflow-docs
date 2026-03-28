@@ -1,0 +1,84 @@
+---
+title: Formatter
+description: Transform text, dates, and numbers with spreadsheet-style operations
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+The **Formatter** block is a general-purpose **data cleanup and normalization** tool—similar in spirit to “Formatter”
+steps in iPaaS products. Pick a **category** (Text, Date / Time, Numbers), then a specific **operation**, supply
+**input** (often from a previous block via references), and use the **result** in conditions, tools, or messages.
+
+It is ideal when LLMs or APIs return messy strings and you need deterministic transforms **without** writing a full
+Function block.
+
+## Operation categories
+
+### Text
+
+Common text operations include:
+
+- Case transforms: **Capitalize**, **Lowercase**, **Titlecase**, **Uppercase**  
+- Cleaning: **Trim Whitespace**, **Remove HTML Tags**, **Truncate**  
+- Encoding: **URL Encode/Decode**, **Convert to ASCII**  
+- Markdown/HTML: **Convert HTML to Markdown**, **Convert Markdown to HTML**  
+- Extraction helpers: **Extract Email**, **Extract URL**, **Extract Phone Number**, **Extract Number**, **Extract Pattern** (regex)  
+- Utility: **Replace**, **Split**, **Split Text into Chunks for AI Prompts**, **Length**, **Word Count**, **Pluralize**, **Default Value**, **Spreadsheet-Style Formula** (text), and more  
+
+Exact labels match the block dropdown in the product; new operations may appear in updates.
+
+### Date / time
+
+- **Add/Subtract Time**  
+- **Compare Dates**  
+- **Format** (with from/to format fields)  
+
+### Numbers
+
+- **Format Currency**  
+- **Format Number**  
+- **Format Phone Number**  
+- **Perform Math Operation**  
+- **Random Number**  
+- **Spreadsheet-Style Formula** (numeric)  
+
+<Callout type="info">
+  Additional fields appear **conditionally** after you choose an operation—for example date format strings or replace
+  patterns. Collapse and expand sub-sections in the block UI to see all parameters.
+</Callout>
+
+## Typical patterns
+
+<Steps>
+  <Step>Normalize user email: <strong>Text → Extract Email → Trim</strong> chain or single extract op.</Step>
+  <Step>Prepare currency for CRM: <strong>Numbers → Format Currency</strong> with locale options if exposed.</Step>
+  <Step>Split long documents: <strong>Text → Split into Chunks</strong> before Agent blocks.</Step>
+</Steps>
+
+## Outputs
+
+Returns:
+
+- **`result`** — transformed value (type depends on operation)  
+- **`operation`** — internal operation id for debugging  
+
+Downstream blocks consume `result` via block references.
+
+<Tabs items={['Accuracy', 'Performance']}>
+  <Tab>
+    Formatter operations are **deterministic**—prefer them over asking an LLM to “clean this string” when the rule
+    is fixed (regex extract, case change).
+  </Tab>
+  <Tab>
+    Chaining five Formatters is fine for moderate data sizes; for huge arrays, consider a **Function** block or
+    batch in **[Field Mapper](./field-mapper)** / **[Converter](./converter)** patterns.
+  </Tab>
+</Tabs>
+
+## Related blocks
+
+- [Field Mapper](./field-mapper) — reshape objects and rename keys  
+- [Converter](./converter) — change **file-level** formats (JSON ↔ CSV, etc.)  
+- [Function](./function) — arbitrary code when no built-in op fits  

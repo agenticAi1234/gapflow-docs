@@ -1,0 +1,20 @@
+{
+  "title": "Gapflow Documentation",
+  "pages": [
+    "---Introduction---",
+    "./introduction/index",
+    "./getting-started/index",
+    "---Create---",
+    "blocks",
+    "tools",
+    "---Connections---",
+    "connections",
+    "---Execution---",
+    "execution",
+    "---Platform---",
+    "platform",
+    "---Advanced---",
+    "./variables/index"
+  ],
+  "defaultOpen": true
+}

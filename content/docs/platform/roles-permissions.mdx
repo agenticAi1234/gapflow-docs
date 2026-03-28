@@ -1,0 +1,120 @@
+---
+title: Roles & permissions
+description: Organization roles, custom permissions, and the permission experience for members
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+{/* MANUAL-CONTENT-START:intro */}
+
+Gapflow separates **identity** (who you are), **membership** (which orgs you belong to), and **permissions**
+(what you may do with specific resources). A user can be a **member** of an organization yet unable to **edit**
+workflows until an administrator assigns the right **capability set**. This design supports least-privilege rollouts:
+you can invite contractors, auditors, or new hires without immediately granting org-wide edit rights.
+
+Permissions are evaluated on **both** the client (for UX—buttons, routes, modals) and the **server** (for security).
+Never assume that hiding a button in the UI means an API cannot be called; integrations and power users should
+treat server responses as authoritative.
+
+{/* MANUAL-CONTENT-END */}
+
+## Organization roles (high level)
+
+Common roles include **owner**, **admin**, and **member** (and sometimes **viewer**-style access). At a coarse
+level:
+
+- **Owners / admins** — manage membership, org settings, invitations, and often **assign** granular permissions.
+- **Members** — day-to-day builders or operators; their power comes from **explicit grants**, not only from the
+  word “member.”
+
+The exact names in your UI may differ, but the **separation of role vs capability** remains: a role is a
+**starting template**; capabilities can narrow or expand what that user can touch.
+
+<Callout type="warning">
+  **New members** may receive a **default workspace** but still lack capabilities such as `workflow.edit` or
+  `workflow.execute`. Until an admin assigns permission sets, the experience can feel “broken”—this is a
+  configuration step, not a product defect.
+</Callout>
+
+## Permission modal and capability checks
+
+When you attempt a guarded action (open an editor, deploy, import a file, view all logs), the app resolves
+**capabilities** such as:
+
+- `workflow.view`, `workflow.edit`, `workflow.execute`, `workflow.delete`  
+- `workspace.view`, `workspace.edit`, workspace member management  
+- Organization-level powers: **create workspace**, **invite users**, **view all logs**, **import workflow**  
+
+If you lack access, you may see:
+
+- A **disabled** control with tooltip text  
+- A **modal** explaining missing permission  
+- A **redirect** away from a route  
+
+These surfaces are meant to be **actionable**: they tell the user to contact an admin rather than leaving them
+with a silent failure.
+
+## Scopes: organization, workspace, workflow
+
+Permissions can be scoped at different **granularity**:
+
+| Scope | What it typically gates |
+| --- | --- |
+| **Organization** | Org-wide settings, invitations, creating workspaces, viewing org logs |
+| **Workspace** | Seeing a workspace, editing its workflows, managing members of that workspace |
+| **Workflow** | Editing a specific canvas, executing it, sharing it, exporting it |
+
+<Tabs items={['Why scopes matter', 'Inheritance intuition']}>
+  <Tab>
+    Scopes let you grant **edit on one project workspace** without granting edit on **every** workflow in the
+    company. They also support **read-only auditors** who can view logs but not change definitions.
+  </Tab>
+  <Tab>
+    Exact inheritance rules are implementation-specific, but a useful mental model is: **org capabilities set the
+    ceiling**, workspace and workflow grants refine **which objects** you can touch inside that ceiling.
+  </Tab>
+</Tabs>
+
+## What administrators configure
+
+Administrators typically work through:
+
+- A **Roles** or **Permissions** page in the organization area  
+- **Per-user** assignments—often a named permission set plus optional overrides  
+- **Sharing flows** for workspaces and workflows that create **resource-scoped** grants—see [Collaboration](./collaboration)
+
+<Steps>
+  <Step>Confirm the user has **accepted** the org invitation.</Step>
+  <Step>Assign a **baseline** role appropriate to their function (member vs admin).</Step>
+  <Step>Attach **permission sets** that include required capabilities (edit, execute, logs, import, etc.).</Step>
+  <Step>Optional: use **sharing** for collaborative workspaces without making the user an org-wide admin.</Step>
+  <Step>Ask the user to **refresh** or **re-open** the workflow if cached permission state was stale.</Step>
+</Steps>
+
+## Client caching (for builders and integrators)
+
+The product may cache permission checks on the client for performance (for example a few minutes TTL). If an admin
+**just changed** your access and the UI still looks wrong, try a refresh. **API routes** still enforce the latest
+server-side evaluation.
+
+<Callout type="info">
+  Internal code often funnels checks through a **permission store** with helpers like `canEditWorkflow`. Treat
+  those as conveniences; the network boundary remains the source of truth.
+</Callout>
+
+## Troubleshooting checklist
+
+| Symptom | Likely cause | What to try |
+| --- | --- | --- |
+| Grayed-out **Save** | No `workflow.edit` | Ask admin for edit on that workflow or workspace |
+| Cannot **Run** | No `workflow.execute` | Add execute capability or share with run access |
+| 403 on API | Server denied capability | Compare org, workspace, and workflow IDs in the request |
+| “No workspaces” | No workspace **view** grants | Admin should share a workspace or assign org-level view |
+
+## Related documentation
+
+- [Organization model](./organization) — invitations and default workspace  
+- [Collaboration](./collaboration) — sharing workflows and workspaces  
+- [Resources & plans](./resources-plans) — limits that still apply regardless of permissions  

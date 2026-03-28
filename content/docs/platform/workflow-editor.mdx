@@ -1,0 +1,111 @@
+---
+title: Workflow editor
+description: Save, versions, import/export, folders, and admin visibility
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+{/* MANUAL-CONTENT-START:intro */}
+
+The workflow editor is where you compose blocks, connect data, and configure tools—but **persistence** is a
+first-class concern. Gapflow has moved toward **explicit saves** and rich **version history** rather than relying
+solely on constant autosave for every keystroke. That trade-off gives you **control**: you can experiment on the
+canvas, then commit when the graph is coherent. It also makes **auditing** and **rollback** easier because each
+save can correlate with a version record or change log entry.
+
+Alongside editing, **import** and **export** help you move workflows between environments or back up intellectual
+property **subject to security policy**. **Folders** reduce sidebar chaos as your workspace grows. **Admins** may
+also have **visibility** into member workspaces for support—distinct from **collaboration** via explicit sharing.
+
+{/* MANUAL-CONTENT-END */}
+
+## Manual save
+
+Workflows use **explicit saves** (commonly a **Save** action in the control bar). When you save:
+
+- The current canvas state is **serialized** to the backend (blocks, edges, loops, sub-block configuration).  
+- Permissions are re-checked—**`workflow.edit`** (or equivalent) must succeed.  
+- You may trigger **change log** entries or version snapshots depending on configuration.  
+
+This differs from older **continuous autosave** mental models where every micro-edit hit the network. If you are
+training a team, emphasize: **“Save before you refresh”** and **“Save before you switch branches or environments.”**
+
+<Callout type="info">
+  Lack of save + browser crash can still lose **unsaved local** edits. Treat the editor like an IDE: save at
+  meaningful milestones.
+</Callout>
+
+## Versioning
+
+The product maintains **workflow versions** so operators can:
+
+- Review **history** chronologically  
+- **Compare** or restore prior states (exact UX varies)  
+- Relate executions to **which definition** was active at run time (when surfaced in logs)  
+
+Pair versions with [Change logs](./logs-and-reports#change-logs) for narrative history—who changed what, not only
+snapshots.
+
+<Tabs items={['When to save', 'When to restore']}>
+  <Tab>
+    Save after: completing a tool configuration, finishing a refactor, before publishing a template, before
+    inviting a reviewer, and before long-running test executions you need to debug later.
+  </Tab>
+  <Tab>
+    Restore when: a bad edit corrupted connections, an experiment failed, or you need to roll back to a known-good
+    release baseline. Always **communicate** restores to collaborators to avoid overwriting their newer work.
+  </Tab>
+</Tabs>
+
+## Import and export
+
+**Export** produces a portable representation—commonly structured JSON—suitable for backups, git-style review, or
+migration. Exports may be **redacted** (strip secrets) or **blocked** if disallowed blocks appear—your deployment
+may implement import/export guardrails.
+
+**Import** ingests that file to create a **new** workflow or update an existing one per UI flow. Imports should be
+**validated** for schema compatibility and security containment.
+
+<Callout type="warning">
+  Treat exported files as **sensitive**: they may reveal integration choices, block names, and internal URL
+  patterns even when secrets are stripped.
+</Callout>
+
+## Folders
+
+**Folders** organize workflows **inside** a workspace:
+
+- Create folders for teams, clients, or lifecycle stages (**Draft**, **Production**, **Archive**).  
+- Move workflows via sidebar actions where supported.  
+- Remember **plan limits** on total workflow count still apply—folders do not increase caps.  
+
+Folders are navigational; they do not replace **permissions**. A user who cannot view a workspace still cannot see
+its folders.
+
+## Admin visibility of workspaces
+
+**Organization admins** may **list** or **inspect** workspaces belonging to members—for governance, support, or
+cleanup. This is **not** the same as being **invited** as an editor:
+
+- Visibility aids **operators** resolving tickets.  
+- **Sharing** grants ongoing collaboration rights—see [Collaboration](./collaboration).  
+
+## End-to-end authoring checklist
+
+<Steps>
+  <Step>Open the correct <strong>organization</strong> and <strong>workspace</strong> context.</Step>
+  <Step>Edit blocks and connections; validate tool credentials in <strong>Settings</strong>.</Step>
+  <Step><strong>Save</strong> at stable checkpoints.</Step>
+  <Step>Use <strong>Versions</strong> / <strong>Change logs</strong> if you need history or rollback.</Step>
+  <Step><strong>Export</strong> for backup or promotion to another environment; <strong>import</strong> where
+    allowed.</Step>
+  <Step>Organize with <strong>folders</strong> before the sidebar becomes unwieldy.</Step>
+</Steps>
+
+## Related documentation
+
+- [Logs & reports](./logs-and-reports) — execution logs vs definition history  
+- [Templates](./templates) — publishing snapshots  
+- [Roles & permissions](./roles-permissions) — who may save/import/export  

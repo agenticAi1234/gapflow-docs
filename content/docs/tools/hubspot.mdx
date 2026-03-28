@@ -1,0 +1,34 @@
+---
+title: HubSpot
+description: Contacts, CRM objects, and properties via HubSpot APIs
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+**HubSpot** tools connect Gapflow to your HubSpot account for **contacts**, **CRM objects**, and **property** metadata. Typical uses include syncing leads after form fills, enriching records from AI classification blocks, and keeping marketing or sales objects consistent with workflow outcomes.
+
+## Prerequisites
+
+- HubSpot app or private app credentials as required by your deployment  
+- **Settings → Tool integration**: connect HubSpot and authorize the scopes your workflows need (contacts, companies, deals, custom objects, etc.)  
+- Respect HubSpot **API rate limits**; spread bulk work across runs or batches when needed
+
+<Callout type="warn">
+  Marketing and CRM data may include **PII**. Document which properties you read or write, and ensure consent and retention policies cover automated updates from workflows.
+</Callout>
+
+## Tool IDs
+
+| Tool ID | Purpose |
+| --- | --- |
+| `hubspot_contacts` | Create, read, or update contact-oriented operations (see `hubspot/contacts`) |
+| `hubspot_retrieve` | Retrieve CRM records |
+| `hubspot_get_properties` | Fetch property definitions for objects |
+| `hubspot_get_objects` | List or fetch objects by type |
+
+Implementation details live under `apps/sim/tools/hubspot/`. Configure inputs using block references so OAuth tokens and object IDs stay out of static prompt text.
+
+## Related documentation
+
+- [Salesforce](./salesforce)  
+- [Tools index](./)  

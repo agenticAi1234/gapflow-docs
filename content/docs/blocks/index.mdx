@@ -1,0 +1,64 @@
+---
+title: Blocks
+description: Building blocks for your agentic workflows
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import { BlockTypes } from '@/components/ui/block-types'
+
+Blocks are the fundamental building components of Gapflow workflows. Each block has a specific purpose and can be connected to other blocks to create sophisticated workflows.
+
+## What is a Block?
+
+A block is a reusable, configurable component that performs a specific function within your workflow. Blocks have inputs and outputs that allow them to communicate with other blocks. They can process data, make decisions, interact with external systems, or perform computations.
+
+## Primary block types
+
+Gapflow provides six **core** block types that form the foundation of most workflows. Each is designed for a specific role—from AI-powered reasoning to conditional logic and external calls.
+
+<BlockTypes />
+
+Each core type has its own page: [Agent](./agent), [API](./api), [Condition](./condition), [Function](./function), [Evaluator](./evaluator), [Router](./router).
+
+## Data & flow blocks
+
+Beyond the core six, Gapflow includes blocks that **transform data**, **wait on events**, **checkpoint** execution, or **chain workflows**. They run on the graph like any other block; full pages are available for:
+
+- [Formatter](./formatter) · [Field mapper](./field-mapper) · [Converter](./converter) · [Filters](./filters)  
+- [Add custom field](./add-custom-field) · [Checkpoint](./checkpoint) · [Webhook wait](./webhook-wait)  
+- [JSON array merger](./json-array-merger) · [Mistral parse](./mistral-parse) · [Inter-workflow trigger](./inter-workflow-trigger)  
+
+## Block Connections
+
+Blocks can be connected to form a directed graph representing your workflow. Each connection represents the flow of data from one block to another:
+
+<Steps>
+  <Step>
+    <strong>Outputs to Inputs</strong>: A block's outputs can be connected to another block's
+    inputs.
+  </Step>
+  <Step>
+    <strong>Multiple Connections</strong>: A block can have multiple incoming and outgoing
+    connections.
+  </Step>
+  <Step>
+    <strong>Conditional Flows</strong>: Some blocks (like Router and Condition) can have multiple
+    output paths based on conditions.
+  </Step>
+</Steps>
+
+## Block Configuration
+
+Each block type has its own configuration options allowing you to customize its behavior.
+
+### Common Configuration Options
+
+- **Input/output definitions**: Define how data flows in and out of the block
+- **Processing instructions**: Configure how the block processes its inputs
+- **API keys or authentication details**: Provide necessary credentials for external services
+- **Retry policies**: Configure how the block handles failures
+- **Error handling behavior**: Define how errors are managed and reported
+
+See the specific documentation for each block type to learn about its configuration options.

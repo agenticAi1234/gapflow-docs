@@ -1,0 +1,112 @@
+---
+title: Resources & plans
+description: Basic, Custom, and Enterprise resource limits and enforcement
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+{/* MANUAL-CONTENT-START:intro */}
+
+Every organization in Gapflow is associated with **resource limits**—maximum workspaces, workflows, storage,
+monthly executions, API throughput, webhook endpoints, credential slots, member seats, per-run execution
+duration, data processed volume, and (where applicable) AI chat message quotas. These limits keep the platform
+predictable for operators and ensure fair use across tenants.
+
+Plans are not purely cosmetic labels: enforcement code paths consult the **organization_resources** (or equivalent)
+record when you **create** entities or **start** executions. When you bump into a cap, the error message should
+point at the dimension that failed (for example “max workflows”). Understanding the dimensions below helps you map
+those errors to business decisions: upgrade plan, request a **Custom** allocation, or archive old assets.
+
+{/* MANUAL-CONTENT-END */}
+
+## Plan types
+
+Organizations carry a **plan type** that drives defaults and UI expectations:
+
+| Plan | Typical audience | How limits are chosen |
+| --- | --- | --- |
+| **Basic** | Small teams, trials, light automation | **Preset** conservative defaults |
+| **Enterprise** | Larger deployments | **Preset** high ceilings |
+| **Custom** | Negotiated customers | **Manually set** per org; often by super admin |
+
+<Callout type="info">
+  **Custom** does not mean “unlimited.” It means the numbers are **not** tied to the stock Basic or Enterprise
+  tables—they are stored explicitly for that organization and may be adjusted over time.
+</Callout>
+
+## Dimensions typically limited
+
+The product tracks multiple **axes** of consumption. Names in the database and UI may differ slightly, but the
+concepts are:
+
+- **Workspaces** — maximum workspaces the org may own or use concurrently  
+- **Workflows** — cap on workflow count (often per org, sometimes per workspace—check your deployment)  
+- **Storage** — total bytes for attachments, exports, or other persisted blobs  
+- **Manual executions** — runs triggered from UI or manual triggers within a billing period  
+- **API calls** — programmatic executions or internal metered API usage per period  
+- **Webhooks** — allowed webhook subscriptions or endpoints  
+- **Credentials** — OAuth connections / stored secrets count  
+- **Members** — seats for users in the organization  
+- **Execution time** — maximum milliseconds for a single run (prevents runaway graphs)  
+- **Data processed** — volume of payload data processed per period (approximate metering)  
+- **Chat / AI messages** — metering for chat-heavy features where enabled  
+
+<Tabs items={['Basic vs Enterprise', 'Custom plans']}>
+  <Tab>
+    **Basic** keeps costs predictable for early adopters: fewer seats, shorter max runtime, smaller storage, and
+    lower monthly execution counts. **Enterprise** raises those ceilings for orgs that run many concurrent
+    automations or store larger artifacts. Exact integers can change between releases—use your admin console or
+    operator for live numbers.
+  </Tab>
+  <Tab>
+    **Custom** exists for accounts that do not fit either preset. A super admin (or billing operator) sets
+    explicit integers. These rows may carry **notes** about the commercial agreement. When you negotiate a
+    change, expect a short delay while operators update the resource record—not every field is self-service in
+    the UI.
+  </Tab>
+</Tabs>
+
+## Enforcement: what happens when you hit a limit?
+
+Enforcement should occur **server-side** at the moment of mutation or execution start. Typical behaviors:
+
+- **Block** the action with a clear error (“workflow limit exceeded”)  
+- **Partial allow** rare—generally a hard stop is safer for billing integrity  
+
+Client-side hints (grayed buttons) are helpful but **not sufficient** for security.
+
+## Observing usage
+
+Organization admins may see **usage dashboards**, **subscription** panels, or **metrics** that approximate
+current consumption vs caps. If your deployment surfaces **percentage used**, schedule cleanups (archive
+workflows, delete obsolete webhooks) before you hit 100% in production.
+
+## Who can change limits?
+
+| Actor | Typical powers |
+| --- | --- |
+| **Super admin / platform operator** | Set **Custom** rows, deactivate orgs, adjust non-self-service caps |
+| **Organization admin** | Request upgrades, remove unused assets, sometimes view usage |
+| **Billing system** | May automatically assign plan type on invoice status—deployment-specific |
+
+Organization admins generally **cannot** arbitrarily raise **platform-wide** ceilings without a commercial
+change that updates their **organization_resources** record.
+
+## Practical guidance for builders
+
+- **Prototype in a lower environment** with similar limits to production so you discover runtime caps early.  
+- **Batch executions** or **schedule** work if you approach monthly execution quotas.  
+- **Compress or externalize** large payloads if **data processed** is metered heavily.  
+- **Delete unused credentials** to free slots for new integrations.  
+
+<Callout type="warning">
+  Hitting **max execution time** often indicates a workflow that loops too long or waits on an external system—
+  refactor before asking for a higher cap.
+</Callout>
+
+## Related documentation
+
+- [Organization model](./organization) — where resources attach  
+- [Super admin](./super-admin) — who often edits Custom allocations  
+- [Logs & reports](./logs-and-reports) — correlate limits with run volumes  

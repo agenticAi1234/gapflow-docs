@@ -1,0 +1,22 @@
+{
+  "title": "Blocks",
+  "pages": [
+    "agent",
+    "api",
+    "condition",
+    "function",
+    "evaluator",
+    "router",
+    "---Data & flow---",
+    "add-custom-field",
+    "checkpoint",
+    "converter",
+    "field-mapper",
+    "filters",
+    "formatter",
+    "inter-workflow-trigger",
+    "json-array-merger",
+    "mistral-parse",
+    "webhook-wait"
+  ]
+}

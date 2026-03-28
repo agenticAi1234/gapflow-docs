@@ -1,0 +1,74 @@
+---
+title: Converter (CSV, JSON, XML, YAML, Text)
+description: Convert structured data between JSON, CSV, XML, YAML, and plain text
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The **Converter** block (internal type `csv_json_converter`) is a **multi-format transcoder**. Use it when an
+integration emits CSV but your next block expects JSON, when you need YAML for a legacy service, or when you want to
+flatten XML to JSON for agents.
+
+## Supported formats
+
+| Format | As source | As target |
+| --- | --- | --- |
+| **JSON** | ✓ | ✓ |
+| **CSV** | ✓ | ✓ |
+| **XML** | ✓ | ✓ |
+| **YAML** | ✓ | ✓ |
+| **Plain Text** | ✓ | ✓ |
+
+## Key sub-blocks
+
+| Field | Purpose |
+| --- | --- |
+| **From Format** | Encoding of `inputData`. |
+| **To Format** | Desired output encoding. |
+| **Input Data** | Paste or reference payload. |
+| **Use External Service** | `No` uses built-in conversion; `Yes` routes via external API where configured. |
+| **Delimiter** | CSV column separator (`;`, `|`, tab `\t`, etc.). |
+| **Has Headers** | First row names columns vs generic `col1`, `col2`. |
+
+<Callout type="warning">
+  Turning on **external service** may require additional API keys or deployment flags—confirm with your operator.
+  Default **built-in** conversion works offline relative to that external dependency.
+</Callout>
+
+## Outputs
+
+- **`data`** — converted payload (structure depends on target format)  
+- **`convertedFormat`** — label/id of the target format  
+- **`recordCount`** — number of logical records where applicable (e.g., CSV rows)  
+
+## Usage tips
+
+<Tabs items={['CSV hygiene', 'Large files']}>
+  <Tab>
+    Always specify **delimiter** and **headers** correctly. European CSV often uses `;`—misconfiguration yields
+    one wide column or parse errors.
+  </Tab>
+  <Tab>
+    Extremely large documents may hit **execution time** or **memory** limits—chunk upstream or process in batches
+    with loops (see Execution docs).
+  </Tab>
+</Tabs>
+
+<Steps>
+  <Step>Prototype with a 10-row CSV to validate delimiter and header detection.</Step>
+  <Step>Convert to JSON before **[Field Mapper](./field-mapper)** when you need row-wise transforms.</Step>
+  <Step>If output looks like a string, the next block may need JSON parse—check <code>convertedFormat</code>.</Step>
+</Steps>
+
+## Compared to Formatter
+
+**Converter** changes **container format** (syntax-level). **Formatter** changes **values inside** strings, numbers,
+or dates. Use Converter first when the problem is syntax; use Formatter for cleanup after.
+
+## Related
+
+- [Field Mapper](./field-mapper)  
+- [Filters](./filters)  
+- [Formatter](./formatter)  

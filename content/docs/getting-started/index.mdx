@@ -1,0 +1,124 @@
+---
+title: Getting Started
+description: Build, test, and optimize your agentic workflows
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Card, Cards } from 'fumadocs-ui/components/card'
+import { File, Files, Folder } from 'fumadocs-ui/components/files'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import {
+  AgentIcon,
+  ApiIcon,
+  ChartBarIcon,
+  CodeIcon,
+  ConditionalIcon,
+  ConnectIcon,
+  ExaAIIcon,
+  FirecrawlIcon,
+  GmailIcon,
+  NotionIcon,
+  PerplexityIcon,
+  SlackIcon,
+} from '@/components/icons'
+
+Gapflow is a powerful, user-friendly platform for building, testing, and optimizing your agentic workflows. This documentation will help you understand how to use the various components of Gapflow to create sophisticated agent-based applications.
+
+<Callout type="info">
+  This guide will walk you through the essential concepts and help you get started building your
+  first workflow.
+</Callout>
+
+## Core Components
+
+Gapflow is built around two primary components: **Blocks** (the workflow graph) and **Tools** (integrations you attach to agents or use as tool blocks). Blocks themselves split into **core workflow blocks**—the main control-flow and reasoning nodes—and **data & flow blocks** that format fields, map data, wait on webhooks, checkpoint state, and similar.
+
+### Blocks
+
+Blocks are the fundamental building elements of your workflows. Each block serves a specific purpose.
+
+#### Core workflow blocks
+
+These are the primary node types most canvases start from:
+
+<Files>
+  <File
+    name="Agent Block"
+    icon={<AgentIcon className="h-4 w-4" />}
+    annotation="Create AI agents using any LLM provider"
+  />
+  <File
+    name="API Block"
+    icon={<ApiIcon className="h-4 w-4" />}
+    annotation="Connect to external services and APIs"
+  />
+  <File
+    name="Condition Block"
+    icon={<ConditionalIcon className="h-4 w-4" />}
+    annotation="Add conditional branching to your workflows"
+  />
+  <File
+    name="Function Block"
+    icon={<CodeIcon className="h-4 w-4" />}
+    annotation="Execute custom JavaScript/TypeScript code"
+  />
+  <File
+    name="Evaluator Block"
+    icon={<ChartBarIcon className="h-4 w-4" />}
+    annotation="Assess responses against defined criteria"
+  />
+  <File
+    name="Router Block"
+    icon={<ConnectIcon className="h-4 w-4" />}
+    annotation="Direct workflow execution based on input analysis"
+  />
+</Files>
+
+Each has a **dedicated documentation page**: [Agent](../blocks/agent), [API](../blocks/api), [Condition](../blocks/condition), [Function](../blocks/function), [Evaluator](../blocks/evaluator), [Router](../blocks/router).
+
+#### Data & flow blocks
+
+These blocks run **on the canvas** to shape payloads, gate execution, or bridge workflows—without requiring a separate package under `tools/*`:
+
+- [Formatter](../blocks/formatter) — text, date, number, and cleanup operations  
+- [Field mapper](../blocks/field-mapper) — map fields between systems or steps  
+- [Converter](../blocks/converter) — convert between formats  
+- [Filters](../blocks/filters) — filter arrays and objects  
+- [Add custom field](../blocks/add-custom-field) — enrich structured data  
+- [Checkpoint](../blocks/checkpoint) — pause/resume or mark stages  
+- [Webhook wait](../blocks/webhook-wait) — wait for inbound HTTP callbacks  
+- [JSON array merger](../blocks/json-array-merger) — combine JSON/array payloads  
+- [Mistral parse](../blocks/mistral-parse) — structured parsing helpers  
+- [Inter-workflow trigger](../blocks/inter-workflow-trigger) — start or hand off to other workflows  
+
+See the [Blocks](../blocks) chapter for the full catalog and connection patterns.
+
+### Tools
+
+Tools extend the capabilities of agents. They provide additional functionality for agents by enabling you to interface with your favorite data sources and take action (e.g posting on X, sending an email)
+
+<Files>
+  <File name="Gmail Tool" icon={<GmailIcon className="h-4 w-4" />} />
+  <File name="Firecrawl Tool" icon={<FirecrawlIcon className="h-4 w-4" />} />
+  <File name="Perplexity Tool" icon={<PerplexityIcon className="h-4 w-4" />} />
+  <File name="Notion Tool" icon={<NotionIcon className="h-4 w-4" />} />
+  <File name="Exa AI Tool" icon={<ExaAIIcon className="h-4 w-4" />} />
+  <File name="Slack Tool" icon={<SlackIcon className="h-4 w-4" />} />
+</Files>
+
+## Getting Started
+
+<Steps>
+  <Step title="Create a new workflow">
+    Start by creating a new workflow in the Gapflow dashboard.
+  </Step>
+  <Step title="Add your first block">Drag and drop a block from the sidebar onto the canvas.</Step>
+  <Step title="Configure the block">
+    Set up the block's parameters and inputs according to your needs.
+  </Step>
+  <Step title="Connect blocks">
+    Create connections between blocks to define the flow of data and execution.
+  </Step>
+  <Step title="Test your workflow">Run your workflow with test inputs to verify its behavior.</Step>
+</Steps>

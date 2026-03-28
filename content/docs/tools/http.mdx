@@ -1,0 +1,30 @@
+---
+title: HTTP
+description: Generic authenticated REST requests to arbitrary URLs
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+The **HTTP** tool issues **REST** calls to URLs you configure—useful when no first-party connector exists, or when calling an **internal microservice** with custom headers, query parameters, and bodies.
+
+## When to use HTTP vs a native tool
+
+- **Prefer native tools** when available: they tend to include **schema-aware** inputs and clearer error handling.  
+- **Use HTTP** for private APIs, bespoke JSON contracts, or services where Gapflow does not ship a dedicated integration.
+
+## Tool ID
+
+| Tool ID | Purpose |
+| --- | --- |
+| `http_request` | Perform an HTTP request (method, URL, headers, body) |
+
+See `apps/sim/tools/http/` for supported methods, timeout behavior, and response shaping.
+
+<Callout type="warn">
+  **Security**: Do not embed long-lived secrets in Function blocks or static prompts. Pass credentials through **Tool integration** or approved credential fields. For mTLS or exotic auth, confirm your deployment supports the required network path.
+</Callout>
+
+## Related documentation
+
+- [SQL Database](./sql-database) — relational queries when REST is not the right fit  
+- [Tools index](./)  

@@ -1,0 +1,15 @@
+{
+  "title": "Platform & administration",
+  "pages": [
+    "index",
+    "organization",
+    "roles-permissions",
+    "resources-plans",
+    "super-admin",
+    "workflow-editor",
+    "templates",
+    "logs-and-reports",
+    "settings",
+    "collaboration"
+  ]
+}

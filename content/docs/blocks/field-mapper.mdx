@@ -1,0 +1,84 @@
+---
+title: Field Mapper
+description: Pick and rename fields from JSON using declarative source-to-target mappings
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+The **Field Mapper** block reshapes JSON **arrays** (rows) by **selecting** only the properties you need and
+**renaming** them in one pass. Think of it as projection + alias—for example mapping `firstname` → `firstName` for
+an API that expects camelCase, or dropping sensitive columns before logging.
+
+## Inputs
+
+| Input | Description |
+| --- | --- |
+| **Input Data** | JSON array (via code editor; use `<prevBlock.output>` references). |
+| **Field Mapping** | Table of **Source Field** → **Target Field** pairs. |
+
+## Behavior
+
+- For each object in the array, the block emits a **new object** containing **only** mapped targets.  
+- **Nested paths** are supported with **dot notation** where the executor allows (e.g. `user.name` → `fullName`).  
+- Unmapped source keys are **omitted** from the output—use this to minimize payloads.  
+
+<Callout type="info">
+  If you need to **filter rows** by conditions, use **[Filters](./filters)** first, then Field Mapper. If you need
+  **format** changes per field (phone formatting), chain **[Formatter](./formatter)** after mapping.
+</Callout>
+
+## Outputs
+
+| Output field | Meaning |
+| --- | --- |
+| `data` | The mapped JSON array |
+| `mappedFields` | Count of mappings applied (per implementation) |
+
+## Example mental model
+
+**Before** (three fields, messy names):
+
+```json
+[
+  { "fname": "Ada", "lname": "Lovelace", "internal_id": 99 }
+]
+```
+
+**Mapping**: `fname` → `firstName`, `lname` → `lastName`
+
+**After** (internal id dropped):
+
+```json
+[
+  { "firstName": "Ada", "lastName": "Lovelace" }
+]
+```
+
+## Recommended workflow
+
+<Steps>
+  <Step>Inspect upstream JSON in a test run (logs or Debugger).</Step>
+  <Step>List only fields required by the next tool—avoid shipping PII you do not need.</Step>
+  <Step>Add mappings; run on a two-row fixture to validate paths.</Step>
+  <Step>Connect downstream API/tool blocks to the mapped shape.</Step>
+</Steps>
+
+## Compared to other data blocks
+
+| Block | Role |
+| --- | --- |
+| **Field Mapper** | Subset + rename columns |
+| **[Add Field](./add-custom-field)** | Add constants / computed columns |
+| **[Converter](./converter)** | Entire-document format change (CSV ↔ JSON) |
+| **[Filters](./filters)** | Keep/remove **rows** by rules |
+
+## Troubleshooting
+
+- **Empty output rows** — source path typo; confirm dot paths match actual JSON.  
+- **Unexpected nulls** — missing keys in some rows; add upstream defaulting or Filter.  
+
+## Related
+
+- [Converter](./converter)  
+- [Json Array Merger](./json-array-merger)  

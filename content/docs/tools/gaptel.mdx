@@ -1,0 +1,128 @@
+---
+title: GapTel SMS
+description: Send SMS messages via the GapTel API
+---
+
+import { BlockInfoCard } from '@/components/ui/block-info-card'
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+<BlockInfoCard
+  type="gaptel_send_sms"
+  color="#4A90E2"
+  icon={true}
+  iconSvg={`<svg className="block-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>`}
+/>
+
+{/* MANUAL-CONTENT-START:intro */}
+
+**GapTel** is a carrier-integrated messaging layer that lets Gapflow workflows deliver **SMS** at scale—alerts,
+one-time passcodes, appointment reminders, or batch operational notifications. The integration is **HTTP-native**:
+the runtime tool builds a JSON payload and authenticates with a **Bearer token** against your GapTel tenant’s
+`/api/sms/send` endpoint. Gapflow never stores message bodies longer than execution logs require; treat transcripts
+like any other PII in your retention policy.
+
+Compared to consumer SMS hacks, GapTel is aimed at teams that already have an **approved sender registry**—your
+“From” value must match what GapTel expects (brand name, short code alias, or similar). Always verify regulatory
+requirements (TCPA, GDPR SMS consent, etc.) with your legal counsel before automating outreach.
+
+{/* MANUAL-CONTENT-END */}
+
+## When to use GapTel in Gapflow
+
+- **Transactional** messaging tied to workflow outcomes (payment received, ticket updated).  
+- **Operational broadcast** to an ops roster when monitoring workflows fire.  
+- **Multi-recipient** sends where GapTel batching is acceptable—subject to the per-run cap enforced in-tool.  
+
+Avoid stuffing marketing blast lists through automation blocks without compliance review.
+
+## Configuration overview
+
+<Steps>
+  <Step>
+    In <strong>Settings → Tool integration</strong>, create <strong>GapTel</strong> credentials containing your API
+    domain and key (exact field labels depend on your credential schema).
+  </Step>
+  <Step>
+    Add the <strong>GapTel send SMS</strong> block to the canvas (category: tools) or expose{' '}
+    <code>gaptel_send_sms</code> to an Agent via the tools picker.
+  </Step>
+  <Step>
+    Bind the <strong>GapTel Connection</strong> sub-block; confirm the <strong>From sender</strong> dropdown
+    populates (data is fetched from <code>/api/tools/gaptel/fetch-senders</code> when auth succeeds).
+  </Step>
+  <Step>
+    Provide recipients and message text; run a dry test to a safe handset before production traffic.
+  </Step>
+</Steps>
+
+<Callout type="warning">
+  The tool enforces a maximum of <strong>100</strong> distinct numbers per invocation to reduce accidental blast
+  sends. Split larger audiences across multiple controlled executions if policy allows.
+</Callout>
+
+## Usage instructions
+
+Compose recipients as:
+
+- A **JSON array** of strings (`["+15551234567", "+442071838000"]`), or  
+- A **JSON string** that parses to such an array, or  
+- **Newline-separated** values (the parser also tolerates simple list-like strings).
+
+Numbers without a leading `+` are **normalized** by prefixing `+` before calling GapTel. Message bodies must be
+non-empty strings; whitespace-only content is rejected. Optional **`callback`** URLs receive provider status
+webhooks when GapTel supports them—confirm your tenant’s callback contract.
+
+## Tool: `gaptel_send_sms`
+
+### Input parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `credential` | string | Yes (UI) | Selects stored GapTel auth; injects `domain` + `apiKey` |
+| `phoneNumbers` | json / string | Yes | Array or textual list of destinations |
+| `message` | string | Yes | SMS body |
+| `from` | string | Yes | Sender identifier approved in GapTel |
+| `callback` | string | No | Optional status callback URL |
+| `domain` | string | Injected | Base URL, trailing slash stripped automatically |
+| `apiKey` | string | Injected | Bearer token material |
+
+### Output shape
+
+Returns:
+
+- **`success`** — boolean aligned with GapTel `status === 'success'`  
+- **`status`** — provider-reported status string  
+- **`result`** — optional structured carrier results array  
+- **`message`** — human-readable summary for logs  
+
+Inspect execution logs if `success` is false—the proxied HTTP layer records provider error payloads.
+
+## Security and compliance notes
+
+- **Rotate API keys** on compromise; update the credential once, all workflows pick up the new secret.  
+- **Least privilege**: only users who operate SMS should retain org-level GapTel credentials.  
+- **Log scrubbing**: if logs export to SIEM, filter message bodies if policy requires minimization.  
+
+## Troubleshooting
+
+| Symptom | Likely cause |
+| --- | --- |
+| Empty sender dropdown | Credential invalid or `/fetch-senders` failing—re-auth |
+| HTTP 401 from proxy | API key expired or wrong domain |
+| “Too many phone numbers” | More than 100 recipients—chunk sends |
+| Partial delivery | Carrier issue—inspect `result` array in output |
+
+## Best practices
+
+- Test with **low balances** / sandbox numbers if your GapTel plan supports them.  
+- Encode **retry** logic in the workflow (e.g., Function block) rather than spamming duplicate sends.  
+- Pair with [OmniDimension](./omnidimension) only when product policy allows voice + SMS orchestration from one flow.  
+
+## Related documentation
+
+- [Tools index](./) — other messaging integrations (Twilio, WhatsApp)  
+- [Settings](../platform/settings) — credential management  
+- [Connections](../connections) — passing dynamic phone lists between blocks  

@@ -1,0 +1,54 @@
+---
+title: Inter Workflow Trigger
+description: Start another workflow asynchronously with an optional JSON payload
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+The **Inter Workflow Trigger** block (`inter_workflow_trigger`) **fans out** automation: when execution reaches
+this block, it schedules a **target workflow** in the same workspace (selected via **workflow selector**) to run
+**asynchronously** with a JSON **payload**. Control returns along the primary workflow without blocking on the
+child’s completion—think “fire-and-forget” orchestration.
+
+## Configuration
+
+| Sub-block | Purpose |
+| --- | --- |
+| **Target Workflow** | Pick the downstream workflow from allowed list. |
+| **Payload** | JSON object forwarded as inputs/context to the child (defaults to `{}`). |
+
+## Outputs
+
+Response fields commonly include:
+
+- `status` — dispatch result  
+- `targetWorkflowId` — which workflow was triggered  
+- `executionId` — child run identifier when available  
+- `message` — diagnostics  
+
+<Callout type="warning">
+  Asynchronous triggers mean **no guarantee** the child finished before later blocks on the parent run. Do not rely
+  on side effects from the child unless you add explicit synchronization (webhooks, shared storage, or polling)—see
+  **[Webhook Wait](./webhook-wait)** for handshake patterns.
+</Callout>
+
+## Safe usage patterns
+
+<Steps>
+  <Step>Keep payloads <strong>small</strong>—pass ids, not megabyte blobs.</Step>
+  <Step>Version the payload schema; child workflow should validate required keys.</Step>
+  <Step>Log <code>executionId</code> for cross-workflow tracing in support tooling.</Step>
+  <Step>Guard with permissions—users who cannot run child workflows should not bypass checks via parent.</Step>
+</Steps>
+
+## Compared to sub-workflows / function reuse
+
+This block is **cross-workflow**. If you only need **modular graphs** inside one canvas, consider grouping blocks or
+using shared templates instead of always chaining separate workflows.
+
+## Related
+
+- [Webhook Wait](./webhook-wait)  
+- [Agent](./agent) — LLM steps in child workflows (depends on design)  
+- [Platform: collaboration](../platform/collaboration) — teams sharing workflows  

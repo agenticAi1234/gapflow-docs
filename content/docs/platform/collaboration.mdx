@@ -1,0 +1,112 @@
+---
+title: Collaboration
+description: Sharing workspaces and workflows inside an organization
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+{/* MANUAL-CONTENT-START:intro */}
+
+Modern automation rarely stays with a single author. Teams co-build workflows, hand off maintenance, or pair an
+**editor** with an **operator** who only executes. Gapflow supports **in-organization collaboration** without
+opening your tenant to the entire internet: sharing is between **members of the same organization**, mediated by
+**permissions** and explicit **share** records (workspace-level, workflow-level, view vs edit semantics).
+
+Confusion arises when people equate **admin visibility**—seeing that a workspace exists—with **collaboration
+rights**. Governance visibility helps support; **sharing** grants day-to-day access. This page focuses on the
+latter pattern and best practices for least privilege.
+
+{/* MANUAL-CONTENT-END */}
+
+## Collaboration boundaries
+
+All collaboration scenarios discussed here assume:
+
+- Both parties are **members** of the **same organization** (or will be after invite acceptance).  
+- The organization is **active** and within **plan limits** for members and workflows.  
+- Appropriate **capabilities** exist after sharing—sharing alone may not bypass org-wide bans on execution.  
+
+If someone is “outside” your org entirely, you cannot share a workspace to them without a **cross-org** feature
+your deployment may not offer—confirm with operators.
+
+## Workspace sharing
+
+**Workspace sharing** grants another user access to **everything** (or a defined subset) inside a workspace—often the
+right choice when a squad co-owns a fleet of workflows.
+
+Typical capabilities include:
+
+- **View** — browse workflow list, maybe open read-only canvas  
+- **Edit** — modify workflows, depending on granular policy  
+- **Manage members** — invite/remove collaborators on that workspace—restricted to trusted leads  
+
+<Tabs items={['When to use workspace share', 'When to avoid it']}>
+  <Tab>
+    Use workspace-level sharing for **long-lived teams** where most workflows are collectively maintained—think
+    “Marketing ops” or “Support automations.”
+  </Tab>
+  <Tab>
+    Avoid workspace-wide share when you only need a **single** sensitive workflow exposed—prefer **workflow-level**
+    or clone a minimal template into an isolated workspace.
+  </Tab>
+</Tabs>
+
+## Workflow sharing
+
+**Workflow sharing** targets **individual canvases**—ideal for contractor access, reviews, or peer programming on
+one automation without exposing neighboring intellectual property.
+
+Shares record:
+
+- **Who** granted access  
+- **With whom**  
+- **Permission** level (e.g., view vs edit)  
+
+Exact UX labels depend on the build, but the intent is consistent: **narrow blast radius**.
+
+<Callout type="info">
+  Even with edit rights, **organization credentials** still gate tool execution—collaborators cannot magically use
+  secrets they are not permitted to reference.
+</Callout>
+
+## Invitation workflow
+
+Most collaborators must **join** the org before sharing records apply:
+
+<Steps>
+  <Step>Admin or member with invite rights sends an <strong>organization invitation</strong>.</Step>
+  <Step>Invitee accepts and becomes a <strong>member</strong>.</Step>
+  <Step>Assign <strong>baseline permissions</strong> so they can enter routes—see <a href="./roles-permissions">Roles &amp; permissions</a>.</Step>
+  <Step>Use <strong>Share</strong> on workspace or workflow to grant resource-specific access beyond baseline.</Step>
+  <Step>Confirm the collaborator can <strong>save</strong> or <strong>execute</strong> as intended in a test workflow.</Step>
+</Steps>
+
+## Versus admin oversight
+
+**Organization admins** may have **visibility** into member workspaces for auditing. That does **not** replace
+collaboration shares: visibility helps answer “does this workspace exist?” while **sharing** answers “may Alice edit
+this canvas with Bob?”
+
+## Best practices
+
+- Prefer **least privilege**: start view-only, elevate to edit only after training.  
+- **Re-share** when team membership rotates—old shares may linger if offboarding is manual.  
+- Pair collaboration with [Resources & plans](./resources-plans)—adding members or workflows may hit caps.  
+- Document **ownership**: name a primary maintainer per critical workflow to avoid orphaned graphs.  
+
+## Troubleshooting collaboration issues
+
+| Symptom | Likely fix |
+| --- | --- |
+| User sees workspace but canvas is read-only | Grant **edit** share or capability |
+| User lacks credentials to run tools | Connect org credential or grant permission to use it |
+| Share button missing | User lacks **share** capability on resource |
+| Invitee never appears in members list | Invitation still pending or wrong email domain policy |
+
+## Related documentation
+
+- [Organization model](./organization) — membership basics  
+- [Roles & permissions](./roles-permissions) — capabilities underlying shares  
+- [Workflow editor](./workflow-editor) — save/version etiquette in teams  
