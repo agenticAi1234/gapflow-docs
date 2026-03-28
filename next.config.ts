@@ -5,10 +5,6 @@ const withMDX = createMDX()
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
-  /** Cloudflare `@cloudflare/next-on-pages` — align with Edge deployment (see also route `runtime`). */
-  experimental: {
-    runtime: 'edge',
-  },
   async redirects() {
     return [
       {
